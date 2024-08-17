@@ -1,0 +1,43 @@
+class Reserva:
+    def __init__(self, id_reserva, id_cliente, id_cabana, fecha_inicio, fecha_fin, precio_final, id_empleado):
+        self.id_reserva = id_reserva
+        self.id_cliente = id_cliente
+        self.id_cabana = id_cabana
+        self.fecha_inicio = fecha_inicio
+        self.fecha_fin = fecha_fin
+        self.precio_final = precio_final
+        self.id_empleado = id_empleado
+        
+        
+class Empleado:
+    def __init__(self, id_empleado, nombre, apellido, dni, contrasena=None):
+        self.id_empleado = id_empleado
+        self.nombre = nombre
+        self.apellido = apellido
+        self.dni = dni
+        self.contrasena = hash_password(contrasena) if contrasena else None
+
+class Cliente:
+    def __init__(self, id_cliente, nombre, apellido, dni, email):
+        self.id_cliente = id_cliente
+        self.nombre = nombre
+        self.apellido = apellido
+        self.dni = dni
+        self.email = email
+        
+        
+class Actividad:
+    def __init__(self, id_actividad, nombre, costo, capacidad):
+        self.id_actividad = id_actividad
+        self.nombre = nombre
+        self.costo = costo
+        self.capacidad = capacidad
+        
+        
+class Cabana:
+    def __init__(self, id_cabana, nombre, capacidad, costo_por_noche, disponible):
+        self.id_cabana = id_cabana
+        self.nombre = nombre
+        self.capacidad = capacidad
+        self.costo_por_noche = costo_por_noche
+        self.disponible = disponible

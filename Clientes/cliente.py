@@ -71,3 +71,20 @@ class Cliente:
             print("Cliente eliminado con éxito.")
         else:
             print("No se pudo establecer la conexión con la base de datos.")
+
+    @staticmethod
+    def search_by_dnicliente(dni):
+        cursor, connection = create_connection()
+        if cursor and connection:
+            query = "SELECT * FROM Cliente WHERE dni = %s"
+            cursor.execute(query, (dni,))
+            data = cursor.fetchone()
+            close_connection(connection, cursor)
+            if data:
+                return Cliente(*data)
+            else:
+                print("Cliente no encontrado.")
+                return None
+        else:
+            print("No se pudo establecer la conexión con la base de datos.")
+            return None

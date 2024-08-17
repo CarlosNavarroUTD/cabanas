@@ -1,0 +1,50 @@
+CREATE DATABASE IF NOT EXISTS bd_cabanas;
+
+USE bd_cabanas;
+
+CREATE TABLE Empleado (
+    id_empleado INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    puesto VARCHAR(50) NOT NULL,
+    dni VARCHAR(20) NOT NULL UNIQUE,
+    contrasena VARCHAR(255)
+);
+
+CREATE TABLE Cliente (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    dni VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE Actividad (
+    id_actividad INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    costo DECIMAL(10, 2) NOT NULL,
+    capacidad INT NOT NULL
+);
+
+CREATE TABLE Cabana (
+    id_cabana INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    capacidad INT NOT NULL,
+    costo_por_noche DECIMAL(10, 2) NOT NULL,
+    disponible BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE Reserva (
+    id_reserva INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT,
+    id_cabana INT,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    precio_final DECIMAL(10, 2) NOT NULL,
+    id_empleado INT,
+    id_actividad INT,
+    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente),
+    FOREIGN KEY (id_cabana) REFERENCES Cabana(id_cabana),
+    FOREIGN KEY (id_empleado) REFERENCES Empleado(id_empleado),
+    FOREIGN KEY (id_actividad) REFERENCES Actividad(id_actividad)
+);

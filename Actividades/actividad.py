@@ -8,15 +8,18 @@ class Actividad:
         self.capacidad = capacidad
 
     @staticmethod
-    def crear(id_actividad, nombre, costo, capacidad):
+    def crear(nombre, costo, capacidad):
         cursor, connection = create_connection()
         if cursor and connection:
             query = """
-            INSERT INTO Actividad (id_actividad, nombre, costo, capacidad)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO Actividad (nombre, costo, capacidad)
+            VALUES (%s, %s, %s)
             """
-            cursor.execute(query, (id_actividad, nombre, costo, capacidad))
+            cursor.execute(query, (nombre, costo, capacidad))
             connection.commit()
+
+            # Obtener el id autogenerado
+            id_actividad = cursor.lastrowid
             close_connection(connection, cursor)
             return Actividad(id_actividad, nombre, costo, capacidad)
         else:
@@ -68,3 +71,16 @@ class Actividad:
             print("Actividad eliminada con éxito.")
         else:
             print("No se pudo establecer la conexión con la base de datos.")
+
+    @staticmethod
+    def getAll():
+        cursor, connection = create_connection()
+        if cursor and connection:
+            query = "SELECT * FROM Actividad"
+            cursor.execute(query)
+            data = cursor.fetchall()
+            close_connection(connection, cursor)
+            return [Actividad(*row) for row in data]
+        else:
+            print("No se pudo establecer la conexión con la base de datos.")
+            return []

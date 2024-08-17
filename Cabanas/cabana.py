@@ -36,7 +36,7 @@ class Cabana:
             if data:
                 return Cabana(*data)
             else:
-                print("Cabana no encontrada.")
+                print("Cabaña no encontrada.")
                 return None
         else:
             print("No se pudo establecer la conexión con la base de datos.")
@@ -56,7 +56,7 @@ class Cabana:
             cursor.execute(query, (nombre, capacidad, costo_por_noche, disponible, self.id_cabana))
             connection.commit()
             close_connection(connection, cursor)
-            print("Cabana actualizada con éxito.")
+            print("Cabaña actualizada con éxito.")
         else:
             print("No se pudo establecer la conexión con la base de datos.")
 
@@ -68,6 +68,19 @@ class Cabana:
             cursor.execute(query, (id_cabana,))
             connection.commit()
             close_connection(connection, cursor)
-            print("Cabana eliminada con éxito.")
+            print("Cabaña eliminada con éxito.")
         else:
             print("No se pudo establecer la conexión con la base de datos.")
+
+    @staticmethod
+    def getAll():
+        cursor, connection = create_connection()
+        if cursor and connection:
+            query = "SELECT * FROM Cabana"
+            cursor.execute(query)
+            data = cursor.fetchall()
+            close_connection(connection, cursor)
+            return [Cabana(*row) for row in data]
+        else:
+            print("No se pudo establecer la conexión con la base de datos.")
+            return []

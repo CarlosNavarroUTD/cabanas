@@ -29,7 +29,6 @@ class Cabana(models.Model):
     arrendador = models.ForeignKey(Arrendador, on_delete=models.CASCADE, related_name='cabanas')
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
-    slug = models.SlugField(unique=True, max_length=255)
     
     # Capacidad y precios
     capacidad = models.PositiveIntegerField(validators=[MinValueValidator(1)])

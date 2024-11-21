@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'apps.usuarios.apps.UsuariosConfig',
     'apps.cabanas.apps.CabanasConfig',
+    'apps.actividades.apps.ActividadesConfig',
 
 ]
 

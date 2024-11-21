@@ -45,7 +45,7 @@ class ArrendadorPermission(permissions.BasePermission):
     """
     Permisos específicos para arrendadores.
     """
-    SAFE_METHODS = ['GET', 'HEAD', 'POST', 'OPTIONS']
+    SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
     ARRENDADOR_METHODS = ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH']
     
     def has_permission(self, request, view):

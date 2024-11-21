@@ -1,6 +1,13 @@
-from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import (
+    ActividadViewSet, 
+    PaqueteViewSet, 
+    PaqueteCabanaViewSet, 
+    PaqueteActividadViewSet
+)
 
-urlpatterns = [
-    path('list/', views.listar_actividades, name='listar_actividades'),
-]
+router = DefaultRouter()
+router.register(r'actividades', ActividadViewSet)
+router.register(r'paquetes', PaqueteViewSet)
+
+urlpatterns = router.urls

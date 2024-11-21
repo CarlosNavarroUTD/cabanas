@@ -17,7 +17,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api/usuarios/me/', CurrentUserView.as_view(), name='current_user'),
-    #path('api/actividades/', include('apps.actividades.urls')),
+    path('api/actividades/', include('apps.actividades.urls')),
     path('api/cabanas/', include('apps.cabanas.urls')),
     #path('api/reservas/', include('apps.reservas.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

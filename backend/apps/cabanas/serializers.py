@@ -9,7 +9,7 @@ class UbicacionSerializer(serializers.ModelSerializer):
 class ServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servicio
-        fields = '__all__'
+        fields = ['id', 'nombre', 'icono']
 
 class ImagenCabanaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,11 +38,11 @@ class CabanaBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cabana
         fields = [
-            'id', 'arrendador', 'nombre', 'descripcion', 'slug', 
+            'id', 'arrendador', 'nombre', 'descripcion', 
             'capacidad', 'costo_por_noche', 'ubicacion', 'estado', 
             'servicios', 'creada_en', 'actualizada_en'
         ]
-        read_only_fields = ['slug', 'creada_en', 'actualizada_en']
+        read_only_fields = ['creada_en', 'actualizada_en']
 
 class CabanaDetailSerializer(CabanaBaseSerializer):
     """
@@ -64,7 +64,7 @@ class CabanaListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cabana
         fields = [
-            'id', 'nombre', 'slug', 'descripcion', 
+            'id', 'nombre', 'descripcion', 
             'capacidad', 'costo_por_noche', 'estado',
             'imagen_principal', 'ubicacion_nombre'
         ]

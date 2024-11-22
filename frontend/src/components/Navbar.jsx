@@ -4,7 +4,7 @@ const Navbar = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-gray-800 py-4">
+    <nav className="bg-primary-dark py-4">
       {/* ... */}
       <div className="ml-10 flex items-baseline space-x-4">
         <Link

@@ -13,6 +13,8 @@ class Ubicacion(models.Model):
 
 class Servicio(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
+    icono = models.CharField(max_length=100, blank=True, null=True, help_text="Ruta del icono en el frontend")
+
     
     def __str__(self):
         return self.nombre
@@ -26,9 +28,11 @@ class Cabana(models.Model):
     ]
 
     # Campos básicos
-    arrendador = models.ForeignKey(Arrendador, on_delete=models.CASCADE, related_name='cabanas')
+    arrendador = models.ForeignKey(Arrendador, on_delete=models.CASCADE, related_name='cabanas', to_field='id_arrendador')
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
+    slug = models.SlugField(unique=True, blank=True, null=True)  # Añadido unique=True
+
     
     # Capacidad y precios
     capacidad = models.PositiveIntegerField(validators=[MinValueValidator(1)])
@@ -76,4 +80,9 @@ class Resena(models.Model):
 
     def __str__(self):
         return f"Reseña de {self.cabana.nombre} por {self.usuario.username}"
+
+
+
+
+
 

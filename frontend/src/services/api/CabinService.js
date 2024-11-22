@@ -59,7 +59,7 @@ class CabinService {
     try {
       const formattedData = this.formatCabinData(cabinData);
       console.log('Sending request to create cabin:', {
-        url: '/api/cabanas/',
+        url: '/api/cabanas/cabanas',
         method: 'POST',
         data: formattedData
       });
@@ -67,7 +67,7 @@ class CabinService {
       const accessToken = TokenService.getAccessToken();
       const response = await axios({
         method: 'POST',
-        url: '/api/cabanas/',
+        url: '/api/cabanas/cabanas',
         data: formattedData,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -92,7 +92,7 @@ class CabinService {
           const newAccessToken = await TokenService.refreshAccessToken();
           const response = await axios({
             method: 'POST',
-            url: '/api/cabanas/',
+            url: '/api/cabanas/cabanas',
             data: formattedData,
             headers: {
               'Authorization': `Bearer ${newAccessToken}`,
@@ -136,13 +136,16 @@ class CabinService {
 
 
   async getServicios() {
-    try {
-      const response = await axios.get('/api/cabanas/servicios/');
-      return response.data;
-    } catch (error) {
-      console.error('Get servicios error:', error.response?.data || error.message);
-      throw error;
-    }
+    return this.authenticatedRequest(async (headers = this.getAuthHeader()) => {
+      try {
+        const response = await axios.get('/api/cabanas/servicios/', { headers });
+        console.log('Servicios recibidos:', response.data);  // Para debug
+        return response.data;
+      } catch (error) {
+        console.error('Get servicios error:', error.response?.data || error.message);
+        throw error;
+      }
+    });
   }
 
 
@@ -158,6 +161,7 @@ class CabinService {
       }
     });
   }
+  
   async getCabinById(id) {
     return this.authenticatedRequest(async (headers = this.getAuthHeader()) => {
       const response = await axios.get(`/api/cabanas/${id}/`, { headers });

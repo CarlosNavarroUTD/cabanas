@@ -34,6 +34,12 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre_usuario', 'tipo_usuario']
 
+    @property
+    def arrendador(self):
+        if hasattr(self, 'persona') and hasattr(self.persona, 'arrendador'):
+            return self.persona.arrendador
+        return None
+        
     class Meta:
         db_table = 'Usuario'
         verbose_name = 'Usuario'

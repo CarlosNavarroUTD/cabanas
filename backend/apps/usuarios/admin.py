@@ -72,16 +72,17 @@ class UsuarioAdmin(UserAdmin):
 @admin.register(Arrendador)
 class ArrendadorAdmin(admin.ModelAdmin):
     list_display = ['get_nombre', 'get_email', 'get_tipo_usuario']
-    search_fields = ['persona__nombre', 'persona__apellido', 'persona__id_usuario__email']
+    search_fields = ['id_arrendador__nombre', 'id_arrendador__apellido', 'id_arrendador__id_usuario__email']
 
     def get_nombre(self, obj):
-        return f"{obj.persona.nombre} {obj.persona.apellido}"
+        return f"{obj.id_arrendador.nombre} {obj.id_arrendador.apellido}"
     get_nombre.short_description = 'Nombre Completo'
 
     def get_email(self, obj):
-        return obj.persona.id_usuario.email
+        return obj.id_arrendador.id_usuario.email
     get_email.short_description = 'Correo Electrónico'
 
     def get_tipo_usuario(self, obj):
-        return obj.persona.id_usuario.tipo_usuario
+        return obj.id_arrendador.id_usuario.tipo_usuario
     get_tipo_usuario.short_description = 'Tipo de Usuario'
+

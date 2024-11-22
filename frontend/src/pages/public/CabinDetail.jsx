@@ -23,7 +23,7 @@ import cocheIcon from '../../assets/imgs/CabinDetails/icons/coche.png'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/Select'
+import { Select} from '../../components/Select'
 
 export default function CabinDetail() {
   const [currentImage, setCurrentImage] = useState(0)

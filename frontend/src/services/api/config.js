@@ -19,7 +19,7 @@ instance.interceptors.request.use(
     
     console.log('Request:', {
       method: config.method,
-      url: config.url,
+      url: config.url, 
       headers: config.headers,
       data: config.data
     });

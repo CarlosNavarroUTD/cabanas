@@ -15,19 +15,22 @@ from .serializers import (
 )
 from .permissions import IsArrendadorOrReadOnly
 
+
 class CabanaViewSet(viewsets.ModelViewSet):
     """
     ViewSet para manejar operaciones CRUD de Cabanas
     """
-    queryset = Cabana.objects.select_related('ubicacion').prefetch_related('servicios', 'imagenes')
+    queryset = Cabana.objects.select_related('ubicacion')\
+        .prefetch_related('servicios', 'imagenes')\
+        .order_by('id')  # Ordena por el campo 'creada_en' u otro campo relevante
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     permission_classes = [IsAuthenticated, IsArrendadorOrReadOnly]
-    
+
     # Configuración de filtros y búsqueda
     filterset_fields = ['ubicacion__id', 'capacidad', 'estado']
     search_fields = ['nombre', 'descripcion']
     ordering_fields = ['costo_por_noche', 'creada_en']
-    
+
     def get_serializer_class(self):
         """
         Selecciona el serializador según la acción
@@ -42,7 +45,11 @@ class CabanaViewSet(viewsets.ModelViewSet):
         """
         Asigna el arrendador actual como propietario de la cabaña
         """
-        serializer.save(arrendador=self.request.user.arrendador)
+        arrendador = self.request.user.arrendador
+        if not arrendador:
+            raise serializers.ValidationError("El usuario no es un arrendador válido.")
+        serializer.save(arrendador=arrendador)
+
 
     @action(detail=True, methods=['POST'], permission_classes=[IsAuthenticated])
     def agregar_resena(self, request, pk=None):
@@ -74,7 +81,7 @@ class UbicacionViewSet(viewsets.ModelViewSet):
     """
     ViewSet para manejar operaciones CRUD de Ubicaciones
     """
-    queryset = Ubicacion.objects.all()
+    queryset = Ubicacion.objects.all()  # Ordena por el campo 'id' o cualquier campo relevante
     serializer_class = UbicacionSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter]

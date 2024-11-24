@@ -1,6 +1,7 @@
-// src/pages/public/Home.jsx
-import { Link } from 'react-router-dom';  // Añadido import de Link
+import { Link } from 'react-router-dom';
 import heroImage from '../../assets/imgs/banner.jpg';
+import GoogleMap from '../../components/GoogleMap';
+
 
 export default function Home() {
   return (
@@ -33,25 +34,26 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            ¿Por qué elegirnos?
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+            Sobre Nosotros
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <FeatureCard
-              title="Ubicación Privilegiada"
-              description="Nuestras cabañas están situadas en lugares estratégicos con vistas espectaculares."
+              title="Misión"
+              description="Brindar a nuestros clientes una experiencia inolvidable a través de un servicio confiable de rentas de cabañas, con actividades adicionales. Nos enfocamos en ofrecer un espacio de descanso que inspire confianza y satisfacción a nuestros huéspedes."
             />
             <FeatureCard
-              title="Máximo Confort"
-              description="Todas nuestras instalaciones están equipadas con lo último en comodidades."
-            />
-            <FeatureCard
-              title="Experiencia Única"
-              description="Creamos momentos inolvidables para ti y tu familia en medio de la naturaleza."
+              title="Visión"
+              description="Convertirnos en una de las empresas más reconocidas en el sector de rentas de cabañas, destacando por la calidad de nuestros servicios, la atención al cliente, y nuestro compromiso con la comodidad , la confianza de nuestros clientes y que este al alcance de cualquier usuario."
             />
           </div>
+        </div>
+      </section>
+      <section>
+        <div>
+          <GoogleMap />
         </div>
       </section>
     </div>
@@ -61,9 +63,13 @@ export default function Home() {
 // Componente auxiliar para las tarjetas de características
 function FeatureCard({ title, description }) {
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h3 className="text-xl font-semibold mb-4">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
+      <div className="bg-primary py-4 px-6 flex-grow flex items-center justify-center">
+        <h3 className="text-2xl font-semibold text-white text-center">{title}</h3>
+      </div>
+      <div className="p-6">
+        <p className="text-gray-700">{description}</p>
+      </div>
     </div>
   );
 }

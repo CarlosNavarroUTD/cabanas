@@ -64,7 +64,7 @@ export default function Home() {
 function FeatureCard({ title, description }) {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
-      <div className="bg-primary py-4 px-6 flex-grow flex items-center justify-center">
+      <div className="bg-primary-dark py-4 px-6 flex-grow flex items-center justify-center">
         <h3 className="text-2xl font-semibold text-white text-center">{title}</h3>
       </div>
       <div className="p-6">

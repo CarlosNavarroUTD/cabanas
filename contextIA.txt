@@ -1,71 +1,360 @@
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+
+# Custom manager for the Usuario model
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El Email es obligatorio')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
+    id_usuario = models.AutoField(primary_key=True)
+    email = models.EmailField(unique=True)
+    nombre_usuario = models.CharField(max_length=255, unique=True)
+    tipo_usuario = models.CharField(max_length=20, choices=[
+        ('cliente', 'Cliente'),
+        ('arrendador', 'Arrendador'),
+        ('admin', 'Administrador'),
+    ])
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nombre_usuario', 'tipo_usuario']
+
+    # Relaciones directas a Arrendador y Cliente
+    @property
+    def arrendador(self):
+        return getattr(self, 'arrendador_relation', None)
+
+    @property
+    def cliente(self):
+        return getattr(self, 'cliente_relation', None)
+
+    class Meta:
+        db_table = 'Usuario'
+        verbose_name = 'Usuario'
+        verbose_name_plural = 'Usuarios'
+
+    def __str__(self):
+        return self.email
+
+class Persona(models.Model):
+    id_persona = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=255)
+    apellido = models.CharField(max_length=255)
+    dni = models.CharField(max_length=20, unique=True, null=True, blank=True)
+
+    class Meta:
+        db_table = 'Persona'
+        verbose_name = 'Persona'
+        verbose_name_plural = 'Personas'
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido}"
+
+class Arrendador(models.Model):
+    id_arrendador = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='arrendador_relation')
+
+    class Meta:
+        db_table = 'Arrendador'
+        verbose_name = 'Arrendador'
+        verbose_name_plural = 'Arrendadores'
+
+    def __str__(self):
+        return f"Arrendador: {self.usuario.email}"
+
+class Cliente(models.Model):
+    id_cliente = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='cliente_relation')
+
+    class Meta:
+        db_table = 'Cliente'
+        verbose_name = 'Cliente'
+        verbose_name_plural = 'Clientes'
+
+    def __str__(self):
+        return f"Cliente: {self.usuario.email}"
+
+
+
+        
+Este modelo relaciona mis usuarios con arrendador o cliente, y solo una persona con un usuario
+
+Pero personas ya no tienen relación cliente o arrendador, 
+
+Corrige el resto de mis archivos
+
+# apps/usuarios/views.py
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .permissions import *
+from .models import Usuario, Persona, Arrendador, Cliente
+from .serializers import UsuarioSerializer, PersonaSerializer, ArrendadorSerializer, ClienteSerializer
+
+class UsuarioViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [RegistroPermission]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [PropietarioOAdministrador]
+        elif self.action == 'list':
+            permission_classes = [EsAdministrador]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+class PersonaViewSet(viewsets.ModelViewSet):
+    queryset = Persona.objects.all()
+    serializer_class = PersonaSerializer
+    permission_classes = [PersonaPermission]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        if self.request.user.tipo_usuario == 'admin':
+            return Persona.objects.all()
+        return Persona.objects.filter(id_usuario=self.request.user)
+
+class ArrendadorViewSet(viewsets.ModelViewSet):
+    queryset = Arrendador.objects.all()
+    serializer_class = ArrendadorSerializer
+    permission_classes = [ArrendadorPermission]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        if self.request.user.tipo_usuario == 'admin':
+            return Arrendador.objects.all()
+        elif self.request.user.tipo_usuario == 'arrendador':
+            return Arrendador.objects.filter(
+                id_arrendador__id_usuario=self.request.user
+            )
+        return Arrendador.objects.none()
+
+class ClienteViewSet(viewsets.ModelViewSet):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    permission_classes = [ClientePermission]
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self):
+        if self.request.user.tipo_usuario == 'admin':
+            return Cliente.objects.all()
+        elif self.request.user.tipo_usuario == 'cliente':
+            return Cliente.objects.filter(
+                id_cliente__id_usuario=self.request.user
+            )
+        return Cliente.objects.none()
+
+class CurrentUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        serializer = UsuarioSerializer(request.user)
+        return Response(serializer.data)
+
 from rest_framework import serializers
-from .models import (
-    Cabana, Ubicacion, Servicio, ImagenCabana, 
-    Resena, DisponibilidadCabana, PoliticaCabana
-)
+from .models import Usuario, Persona, Arrendador, Cliente
 
-class UbicacionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ubicacion
-        fields = '__all__'
-
-class ServicioSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Servicio
-        fields = '__all__'
-
-class ImagenCabanaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImagenCabana
-        fields = ['id', 'imagen', 'es_principal', 'orden', 'titulo']
-
-class ResenaSerializer(serializers.ModelSerializer):
-    nombre_usuario = serializers.SerializerMethodField()
+class UsuarioSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    persona_info = serializers.SerializerMethodField()
 
     class Meta:
-        model = Resena
-        fields = ['id', 'usuario', 'nombre_usuario', 'calificacion', 
-                 'comentario', 'fecha_estadia', 'creada_en']
-        read_only_fields = ['usuario']
+        model = Usuario
+        fields = ['id_usuario', 'nombre_usuario', 'email', 'tipo_usuario', 
+                 'arrendador', 'persona_info', 'password', 'is_active', 'is_staff']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_active': {'read_only': True},
+            'is_staff': {'read_only': True}
+        }
 
-    def get_nombre_usuario(self, obj):
-        return f"{obj.usuario.first_name} {obj.usuario.last_name}"
+    def get_persona_info(self, obj):
+        try:
+            persona = obj.persona
+            data = {
+                'id_persona': persona.id_persona,
+                'nombre': persona.nombre,
+                'apellido': persona.apellido,
+                'dni': persona.dni
+            }
+            # Si es arrendador, incluir información adicional
+            if obj.tipo_usuario == 'arrendador' and hasattr(persona, 'arrendador'):
+                data['arrendador'] = {
+                    'id_arrendador': persona.arrendador.id_arrendador_id
+                }
+            return data
+        except Persona.DoesNotExist:
+            return None
 
-class DisponibilidadCabanaSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = Usuario.objects.create_user(
+            password=password,
+            **validated_data
+        )
+        return user
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+        return super().update(instance, validated_data)
+
+class PersonaSerializer(serializers.ModelSerializer):
+    usuario = UsuarioSerializer(source='id_usuario', read_only=True)
+    id_usuario = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.all(),
+        write_only=True
+    )
+
     class Meta:
-        model = DisponibilidadCabana
-        fields = '__all__'
+        model = Persona
+        fields = ['id_persona', 'id_usuario', 'usuario', 'nombre', 
+                 'apellido', 'dni']
 
-class PoliticaCabanaSerializer(serializers.ModelSerializer):
+class ArrendadorSerializer(serializers.ModelSerializer):
+    persona = PersonaSerializer(source='id_arrendador', read_only=True)
+    id_arrendador = serializers.PrimaryKeyRelatedField(
+        queryset=Persona.objects.all(),
+        write_only=True
+    )
+
     class Meta:
-        model = PoliticaCabana
-        fields = '__all__'
+        model = Arrendador
+        fields = ['id_arrendador', 'persona']
 
-class CabanaDetailSerializer(serializers.ModelSerializer):
-    ubicacion = UbicacionSerializer(read_only=True)
-    servicios = ServicioSerializer(many=True, read_only=True)
-    imagenes = ImagenCabanaSerializer(many=True, read_only=True)
-    resenas = ResenaSerializer(many=True, read_only=True)
-    politicas = PoliticaCabanaSerializer(many=True, read_only=True)
+    def validate_id_arrendador(self, value):
+        if value.id_usuario.tipo_usuario != 'arrendador':
+            raise serializers.ValidationError(
+                "El usuario debe ser de tipo arrendador"
+            )
+        return value
+
+class ClienteSerializer(serializers.ModelSerializer):
+    persona = PersonaSerializer(source='id_cliente', read_only=True)
+    id_cliente = serializers.PrimaryKeyRelatedField(
+        queryset=Persona.objects.all(),
+        write_only=True
+    )
+
+    class Meta:
+        model = Cliente
+        fields = ['id_cliente', 'persona']
+
+    def validate_id_cliente(self, value):
+        if value.id_usuario.tipo_usuario != 'cliente':
+            raise serializers.ValidationError(
+                "El usuario debe ser de tipo cliente"
+            )
+        return value
+
+# apps/usuarios/admin.py
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import Usuario, Persona, Arrendador
+from .forms import PersonaForm
+from .models import models
+
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = Usuario
+        fields = ('email', 'nombre_usuario', 'tipo_usuario')
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta(UserChangeForm.Meta):
+        model = Usuario
+        fields = ('email', 'nombre_usuario', 'tipo_usuario')
+
+class PersonaInline(admin.StackedInline):
+    model = Persona
+    can_delete = False
+    verbose_name_plural = 'Información Personal'
+    fields = ('nombre', 'apellido', 'dni')
+    extra = 1
+    formfield_overrides = {
+        models.CharField: {'required': False},
+    }
+
+@admin.register(Usuario)
+class UsuarioAdmin(UserAdmin):
+    search_fields = ['email', 'nombre_usuario']
+    list_display = ('email', 'nombre_usuario', 'tipo_usuario', 'is_active')
+    list_filter = ('is_active', 'tipo_usuario')
     
-    class Meta:
-        model = Cabana
-        fields = '__all__'
-        read_only_fields = ['calificacion_promedio', 'num_resenas', 
-                           'veces_reservada', 'slug']
-
-class CabanaListSerializer(serializers.ModelSerializer):
-    imagen_principal = serializers.SerializerMethodField()
-    ubicacion_nombre = serializers.CharField(source='ubicacion.nombre')
+    list_display = ('email', 'nombre_usuario', 'tipo_usuario', 'get_nombre_completo', 'is_active', 'is_staff')
+    list_filter = ('tipo_usuario', 'is_active', 'is_staff')
+    search_fields = ('email', 'nombre_usuario', 'persona__nombre', 'persona__apellido')
+    ordering = ('email',)
     
-    class Meta:
-        model = Cabana
-        fields = ['id', 'nombre', 'slug', 'descripcion_corta', 'capacidad',
-                 'costo_por_noche', 'calificacion_promedio', 'imagen_principal',
-                 'ubicacion_nombre', 'es_destacada', 'estado']
+    fieldsets = (
+        (None, {
+            'fields': ('email', 'nombre_usuario', 'password')
+        }),
+        ('Información de Acceso', {
+            'fields': ('tipo_usuario',)
+        }),
+        ('Permisos', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'nombre_usuario', 'tipo_usuario', 'password1', 'password2'),
+        }),
+    )
+    
+    inlines = [PersonaInline]
 
-    def get_imagen_principal(self, obj):
-        imagen_principal = obj.imagenes.filter(es_principal=True).first()
-        if imagen_principal:
-            return imagen_principal.imagen.url
-        return None
+    def get_nombre_completo(self, obj):
+        try:
+            persona = obj.persona
+            return f"{persona.nombre} {persona.apellido}"
+        except Persona.DoesNotExist:
+            return "Sin información personal"
+    get_nombre_completo.short_description = 'Nombre Completo'
+
+
+@admin.register(Arrendador)
+class ArrendadorAdmin(admin.ModelAdmin):
+    list_display = ['get_nombre', 'get_email', 'get_tipo_usuario']
+    search_fields = ['id_arrendador__nombre', 'id_arrendador__apellido', 'id_arrendador__id_usuario__email']
+
+    def get_nombre(self, obj):
+        return f"{obj.id_arrendador.nombre} {obj.id_arrendador.apellido}"
+    get_nombre.short_description = 'Nombre Completo'
+
+    def get_email(self, obj):
+        return obj.id_arrendador.id_usuario.email
+    get_email.short_description = 'Correo Electrónico'
+
+    def get_tipo_usuario(self, obj):
+        return obj.id_arrendador.id_usuario.tipo_usuario
+    get_tipo_usuario.short_description = 'Tipo de Usuario'
+

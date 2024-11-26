@@ -1,4 +1,3 @@
-// src/services/auth/AuthService.js
 import axios from '../api/config';
 import TokenService from './tokenService';
 
@@ -32,7 +31,21 @@ class AuthService {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      return response.data;
+      
+      console.log('Response from /api/usuarios/me/:', response.data);
+      
+      // Enhanced arrendador ID retrieval
+      let arrendadorId = null;
+      if (response.data.tipo_usuario === 'arrendador' && response.data.arrendador_info) {
+        arrendadorId = response.data.arrendador_info.id_arrendador;
+      }
+      
+      const userData = {
+        ...response.data,
+        arrendador_id: arrendadorId
+      };
+      
+      return userData;
     } catch (error) {
       if (error.response && error.response.status === 401) {
         try {
@@ -53,4 +66,8 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+// Create an instance of the class
+const authService = new AuthService();
+
+// Export the instance as the default export
+export default authService;

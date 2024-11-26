@@ -23,10 +23,28 @@ class EsCliente(permissions.BasePermission):
         return request.user.is_authenticated and request.user.tipo_usuario == 'cliente'
 
 class PropietarioOAdministrador(permissions.BasePermission):
-    """
-    Permite acceso al propietario del recurso o a administradores.
-    """
+    def has_permission(self, request, view):
+        # Log de depuración para permisos
+        print(f"Permission Check - User: {request.user}")
+        print(f"User Authenticated: {request.user.is_authenticated}")
+        print(f"User Type: {request.user.tipo_usuario}")
+        
+        if not request.user.is_authenticated:
+            return False
+        
+        # Si es administrador, tiene acceso total
+        if request.user.tipo_usuario == 'admin':
+            return True
+        
+        return True  # Permitir por defecto para verificar en has_object_permission
+
     def has_object_permission(self, request, view, obj):
+        # Log de depuración para permisos de objeto
+        print(f"Object Permission Check")
+        print(f"Request User: {request.user}")
+        print(f"Object User: {obj}")
+        print(f"User Type: {request.user.tipo_usuario}")
+        
         if not request.user.is_authenticated:
             return False
             
@@ -36,9 +54,14 @@ class PropietarioOAdministrador(permissions.BasePermission):
             
         # Para otros usuarios, verificar si son propietarios del recurso
         if hasattr(obj, 'id_usuario'):
-            return obj.id_usuario == request.user
+            result = obj.id_usuario == request.user.id_usuario
+            print(f"Checking id_usuario - Result: {result}")
+            return result
         elif hasattr(obj, 'usuario'):
-            return obj.usuario == request.user
+            result = obj.usuario == request.user
+            print(f"Checking usuario - Result: {result}")
+            return result
+        
         return False
 
 class ArrendadorPermission(permissions.BasePermission):

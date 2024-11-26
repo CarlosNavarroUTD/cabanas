@@ -86,9 +86,14 @@ class CabanaCreateUpdateSerializer(CabanaBaseSerializer):
         required=False
     )
     imagenes = ImagenCabanaSerializer(many=True, read_only=True)
+    ubicacion = serializers.PrimaryKeyRelatedField(
+        queryset=Ubicacion.objects.all(),
+        required=True
+    )
+    slug = serializers.CharField(required=False)  # Añade este campo si necesitas el slug
     
     class Meta(CabanaBaseSerializer.Meta):
-        fields = CabanaBaseSerializer.Meta.fields + ['imagenes']
+        fields = CabanaBaseSerializer.Meta.fields + ['imagenes', 'slug']
     
     def create(self, validated_data):
         servicios = validated_data.pop('servicios', [])

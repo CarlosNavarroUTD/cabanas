@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
-from apps.usuarios.views import CurrentUserView 
+from apps.usuarios.views import CurrentUserView, UsuarioViewSet 
 
 class HealthCheckView(APIView):
     permission_classes = [AllowAny]
@@ -16,6 +16,7 @@ class HealthCheckView(APIView):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/usuarios/', include('apps.usuarios.urls')),
+    path('api/usuarios/<int:pk>/update_profile/', UsuarioViewSet.as_view({'patch': 'update_profile'}), name='usuario-update-profile'),
     path('api/usuarios/me/', CurrentUserView.as_view(), name='current_user'),
     path('api/actividades/', include('apps.actividades.urls')),
     path('api/cabanas/', include('apps.cabanas.urls')),

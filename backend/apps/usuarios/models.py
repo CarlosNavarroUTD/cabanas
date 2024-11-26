@@ -7,7 +7,7 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError('El Email es obligatorio')
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, **extra_fields)  
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -19,8 +19,8 @@ class CustomUserManager(BaseUserManager):
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     id_usuario = models.AutoField(primary_key=True)
-    nombre_usuario = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
+    nombre_usuario = models.CharField(max_length=255, unique=True)
     tipo_usuario = models.CharField(max_length=20, choices=[
         ('cliente', 'Cliente'),
         ('arrendador', 'Arrendador'),
@@ -34,12 +34,15 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre_usuario', 'tipo_usuario']
 
+    # Relaciones directas a Arrendador y Cliente
     @property
     def arrendador(self):
-        if hasattr(self, 'persona') and hasattr(self.persona, 'arrendador'):
-            return self.persona.arrendador
-        return None
-        
+        return getattr(self, 'arrendador_relation', None)
+
+    @property
+    def cliente(self):
+        return getattr(self, 'cliente_relation', None)
+
     class Meta:
         db_table = 'Usuario'
         verbose_name = 'Usuario'
@@ -50,7 +53,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
 class Persona(models.Model):
     id_persona = models.AutoField(primary_key=True)
-    id_usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=255)
     apellido = models.CharField(max_length=255)
     dni = models.CharField(max_length=20, unique=True, null=True, blank=True)
@@ -64,7 +67,9 @@ class Persona(models.Model):
         return f"{self.nombre} {self.apellido}"
 
 class Arrendador(models.Model):
-    id_arrendador = models.OneToOneField(Persona, on_delete=models.CASCADE, primary_key=True)
+    id_arrendador = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=255, null=True, blank=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='arrendador_relation')
 
     class Meta:
         db_table = 'Arrendador'
@@ -72,10 +77,11 @@ class Arrendador(models.Model):
         verbose_name_plural = 'Arrendadores'
 
     def __str__(self):
-        return f"Arrendador: {self.id_arrendador}"
+        return f"Arrendador: {self.usuario.email}"
 
 class Cliente(models.Model):
-    id_cliente = models.OneToOneField(Persona, on_delete=models.CASCADE, primary_key=True)
+    id_cliente = models.AutoField(primary_key=True)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='cliente_relation')
 
     class Meta:
         db_table = 'Cliente'
@@ -83,4 +89,4 @@ class Cliente(models.Model):
         verbose_name_plural = 'Clientes'
 
     def __str__(self):
-        return f"Cliente: {self.id_cliente}"
+        return f"Cliente: {self.usuario.email}"

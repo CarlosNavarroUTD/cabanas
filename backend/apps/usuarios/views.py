@@ -7,8 +7,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .permissions import *
 from .models import Usuario, Persona, Arrendador, Cliente
 from .serializers import UsuarioSerializer, PersonaSerializer, ArrendadorSerializer, ClienteSerializer
+import logging
+
+# Configurar el logger
+logger = logging.getLogger(__name__)
 
 class UsuarioViewSet(viewsets.ModelViewSet):
+    # Asegúrate de definir explícitamente el queryset
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
@@ -23,6 +28,47 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    @action(detail=True, methods=['PATCH'], permission_classes=[PropietarioOAdministrador])
+    def update_profile(self, request, pk=None):
+        user = self.get_object()
+
+        # Asegurarse de que solo el propietario o un admin pueden hacer cambios
+        if request.user.tipo_usuario != 'admin' and user.id_usuario != request.user.id_usuario:
+            return Response(
+                {"error": "No tienes permiso para modificar este perfil"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        usuario_serializer = UsuarioSerializer(user, data=request.data.get('usuario', {}), partial=True)
+        
+        logger.info(f"Update Profile Request - User: {request.user}")
+        logger.info(f"Request User ID: {request.user.id_usuario}")
+        logger.info(f"Target User ID: {pk}")
+        logger.info(f"User Type: {request.user.tipo_usuario}")
+
+        try:
+            persona = user.persona
+            persona_serializer = PersonaSerializer(persona, data=request.data.get('persona', {}), partial=True)
+            
+            if usuario_serializer.is_valid() and persona_serializer.is_valid():
+                usuario_serializer.save()
+                persona_serializer.save()
+                
+                # Recuperar datos actualizados
+                updated_user = Usuario.objects.get(pk=pk)
+                return Response(UsuarioSerializer(updated_user).data)
+            
+            errors = {}
+            if not usuario_serializer.is_valid():
+                errors['usuario'] = usuario_serializer.errors
+            if not persona_serializer.is_valid():
+                errors['persona'] = persona_serializer.errors
+            
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Persona.DoesNotExist:
+            return Response({"error": "No se encontró información de persona"}, status=status.HTTP_404_NOT_FOUND)
+
 class PersonaViewSet(viewsets.ModelViewSet):
     queryset = Persona.objects.all()
     serializer_class = PersonaSerializer
@@ -32,7 +78,7 @@ class PersonaViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.tipo_usuario == 'admin':
             return Persona.objects.all()
-        return Persona.objects.filter(id_usuario=self.request.user)
+        return Persona.objects.filter(usuario=self.request.user)
 
 class ArrendadorViewSet(viewsets.ModelViewSet):
     queryset = Arrendador.objects.all()
@@ -44,9 +90,7 @@ class ArrendadorViewSet(viewsets.ModelViewSet):
         if self.request.user.tipo_usuario == 'admin':
             return Arrendador.objects.all()
         elif self.request.user.tipo_usuario == 'arrendador':
-            return Arrendador.objects.filter(
-                id_arrendador__id_usuario=self.request.user
-            )
+            return Arrendador.objects.filter(usuario=self.request.user)
         return Arrendador.objects.none()
 
 class ClienteViewSet(viewsets.ModelViewSet):
@@ -59,9 +103,7 @@ class ClienteViewSet(viewsets.ModelViewSet):
         if self.request.user.tipo_usuario == 'admin':
             return Cliente.objects.all()
         elif self.request.user.tipo_usuario == 'cliente':
-            return Cliente.objects.filter(
-                id_cliente__id_usuario=self.request.user
-            )
+            return Cliente.objects.filter(usuario=self.request.user)
         return Cliente.objects.none()
 
 class CurrentUserView(APIView):

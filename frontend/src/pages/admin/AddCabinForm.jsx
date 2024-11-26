@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { AlertCircle, ChevronRight, ChevronLeft, Check, Loader } from 'lucide-react';
 import CabinService from '.././../services/api/CabinService';
 import { AuthContext } from '../../services/auth/AuthContext';
@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AddCabinForm = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, setCurrentUser } = useContext(AuthContext);
+  const { currentUser, isAuthenticated } = useContext(AuthContext);
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [step, setStep] = useState(1);
@@ -21,30 +21,8 @@ const AddCabinForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [servicios, setServicios] = useState([]);
-
-  // Estado inicial y verificación de autenticación
-  useEffect(() => {
-    const initializeComponent = async () => {
-      setIsInitializing(true);
-      try {
-        if (!isAuthenticated) {
-          navigate('/login', { state: { returnTo: '/add-cabin' } });
-          return;
-        }
-        // Si estamos autenticados, cargamos los servicios
-        await loadServicios();
-      } catch (error) {
-        console.error('Error de inicialización:', error);
-        setError('Error al inicializar el formulario');
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-
-    initializeComponent();
-  }, [isAuthenticated, navigate]);
-
-  const loadServicios = async () => {
+  
+  const loadServicios = useCallback(async () => {
     if (!isAuthenticated) return;
     
     setIsLoadingServices(true);
@@ -65,7 +43,41 @@ const AddCabinForm = () => {
     } finally {
       setIsLoadingServices(false);
     }
-  };
+  }, [isAuthenticated]);
+
+  // Estado inicial y verificación de autenticación
+  useEffect(() => {
+    const initializeComponent = async () => {
+     setIsInitializing(true);
+     try {
+       if (!isAuthenticated) {
+         navigate('/login', { state: { returnTo: '/add-cabin' } });
+         return;
+       }
+       
+       // Verificar que el usuario sea arrendador y tenga ID
+       if (!currentUser?.persona_info?.arrendador || !currentUser?.arrendador_id) {
+        setError('No tienes permisos de arrendador o falta información del perfil');
+        navigate('/admin/profile');
+        return;
+      }
+       
+       console.log('Current user:', currentUser);
+       console.log('Arrendador ID:', currentUser.persona_info.arrendador.id_arrendador);
+       
+       await loadServicios();
+     } catch (error) {
+       console.error('Error de inicialización:', error);
+       setError('Error al inicializar el formulario');
+     } finally {
+       setIsInitializing(false);
+     }
+   };
+
+   initializeComponent();
+ }, [isAuthenticated, navigate, currentUser, loadServicios]);
+
+  
   
   const validateBasicInfo = () => {
     return (
@@ -123,28 +135,38 @@ const AddCabinForm = () => {
       return;
     }
 
+    if (!currentUser.arrendador_id) {
+      setError('No se encontró la información del arrendador');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const cabinData = {
-        arrendador: currentUser.arrendador,
+        arrendador: currentUser.arrendador_id,
         nombre: basicInfo.nombre,
         descripcion: basicInfo.descripcion,
         capacidad: parseInt(basicInfo.capacidad),
         costo_por_noche: parseFloat(basicInfo.costo_por_noche),
         slug: generateSlug(basicInfo.nombre),
-        ubicacion:1
+        ubicacion: 1
       };
+
+      console.log('Datos de la cabaña a enviar:', cabinData);
 
       const createdCabin = await CabinService.createCabin(cabinData);
       console.log('Cabaña creada:', createdCabin);
       
-      // Manejar la subida de imágenes aquí si es necesario
-      
       navigate(`/cabins/${createdCabin.slug}`);
     } catch (error) {
-      setError(error?.response?.data?.detail || error.message || 'Error al crear la cabaña');
+      console.error('Error al crear la cabaña:', error);
+      const errorDetail = error?.response?.data?.detail || 
+                         error?.response?.data || 
+                         error.message;
+      setError(typeof errorDetail === 'object' ? 
+               JSON.stringify(errorDetail) : errorDetail);
     } finally {
       setIsLoading(false);
     }

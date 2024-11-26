@@ -28,7 +28,7 @@ const RegisterScreen = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-3xl font-bold text-primary-dark mb-6 text-center">Regístrate</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -41,8 +41,8 @@ const RegisterScreen = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-blue-50 border border-blue-300 rounded-md text-sm shadow-sm placeholder-blue-400
-                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full px-3 py-2 bg-gray border border-black-300 rounded-md text-sm shadow-sm placeholder-blue-400
+                         focus:outline-none focus:border-primary-dark focus:ring-1 focus:ring-primary-dark"
               required
             />
           </div>
@@ -55,8 +55,8 @@ const RegisterScreen = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-blue-50 border border-blue-300 rounded-md text-sm shadow-sm placeholder-blue-400
-                         focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="mt-1 block w-full px-3 py-2 bg-gray border border-black-300 rounded-md text-sm shadow-sm placeholder-blue-400
+                         focus:outline-none focus:border-primary-dark focus:ring-1 focus:ring-primary-dark"
               required
             />
           </div>
@@ -69,8 +69,8 @@ const RegisterScreen = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-blue-50 border border-blue-300 rounded-md text-sm shadow-sm placeholder-blue-400
-                         focus:outline-none focus:border-primary-dark focus:ring-1 focus:primary-dark"
+              className="mt-1 block w-full px-3 py-2 bg-gray border border-black-300 rounded-md text-sm shadow-sm placeholder-blue-400
+                         focus:outline-none focus:border-primary-dark focus:ring-1 focus:ring-primary-dark"
               required
             />
           </div>
@@ -85,8 +85,8 @@ const RegisterScreen = () => {
         </form>
         <p className="mt-4 text-center text-sm text-primary-dark">
           ¿Ya tienes una cuenta?{' '}
-          <Link to="/login" className="font-medium text-primary-dark hover:text-blue-900">
-            Inicia seción
+          <Link to="/login" className="font-medium text-primary-dark hover:text-primary">
+            Inicia sesión
           </Link>
         </p>
       </div>

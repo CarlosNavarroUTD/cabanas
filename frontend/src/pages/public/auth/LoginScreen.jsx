@@ -44,10 +44,9 @@ const LoginScreen = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
                          focus:outline-none focus:border-primary-dark focus:ring-1 focus:ring-primary-dark"
               required
-              placeholder="Correo electrónico"
             />
           </div>
           <div>
@@ -59,10 +58,8 @@ const LoginScreen = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                         focus:outline-none focus:border-primary-dark focus:ring-1 focus:ring-primary-dark"
+              className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-white bg-white-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark"
               required
-              placeholder="Contraseña"
             />
           </div>
           <div>
@@ -74,7 +71,7 @@ const LoginScreen = () => {
             </button>
           </div>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-primary-dark">
           ¿Aún no tienes una cuenta?{' '}
           <Link to="/register" className="font-medium text-primary-dark hover:text-primary">
             Regístrate
@@ -86,4 +83,3 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
-

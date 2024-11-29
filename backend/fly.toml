@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for axolpos-backend on 2024-10-27T01:18:41-06:00
+# fly.toml app configuration file generated for coronado-mexiquillo-backend on 2024-11-28T18:14:40-06:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'axolpos-backend'
+app = 'coronado-mexiquillo-backend'
 primary_region = 'gdl'
 
 [build]
@@ -13,8 +13,8 @@ primary_region = 'gdl'
   strategy = 'immediate'
 
 [env]
-  DJANGO_ALLOWED_HOSTS = 'axolpos-backend.fly.dev'
-  DJANGO_CORS_ALLOWED_ORIGINS = 'https://axolpos-frontend.fly.dev'
+  DJANGO_ALLOWED_HOSTS = 'cabanas-mexiquillo.fly.dev'
+  DJANGO_CORS_ALLOWED_ORIGINS = 'https://cabanas-mexiquillo.fly.dev/'
   DJANGO_SETTINGS_MODULE = 'myproject.settings.production'
   PORT = '8000'
 
@@ -44,4 +44,3 @@ primary_region = 'gdl'
 [[statics]]
   guest_path = '/app/static'
   url_prefix = '/static'
-

@@ -10,7 +10,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'axolpos-backend.fly.dev',
+    'cabanas-mexiquillo.fly.dev',
     '172.19.1.210',
     '172.19.2.2',
     '172.19.0.0/16',
@@ -47,7 +47,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configuración de CORS mejorada
 CORS_ALLOWED_ORIGINS = [
-    f"https://{host.strip()}" for host in os.environ.get('CORS_ALLOWED_ORIGINS', 'axolpos-frontend.fly.dev').split(',')
+    f"https://{host.strip()}" for host in os.environ.get('CORS_ALLOWED_ORIGINS', 'cabanas-mexiquillo.fly.dev').split(',')
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [

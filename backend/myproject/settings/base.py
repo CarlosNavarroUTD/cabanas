@@ -1,10 +1,27 @@
 # backend/myproject/settings/base.py
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import sys
+
+
+
+
+
+# Cargar variables de entorno
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(env_path)
+
+# Print for debugging
+print("ENV FILE PATH:", env_path)
+print("DATABASE_URL:", os.environ.get('DATABASE_URL'))
+
+
+# Resto de tu configuración...
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-SECRET_KEY = 'tu_clave_secreta_aqui'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -199,3 +216,4 @@ LOGGING = {
         },
     },
 }
+

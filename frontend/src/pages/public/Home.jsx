@@ -27,9 +27,9 @@ export default function Home() {
             </p>
             <Link
               to="/nosotros"
-              className="bg-white text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition duration-300"
+              className="bg-primary-dark text-light px-6 py-3 rounded-lg font-medium hover:bg-primary transition duration-300"
             >
-              Conocenos
+              Conócenos
             </Link>
           </div>
         </div>

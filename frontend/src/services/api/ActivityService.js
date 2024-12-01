@@ -11,7 +11,19 @@ class ActivityService {
           'Authorization': `Bearer ${TokenService.getAccessToken()}`
         }
       });
-      return response.data;
+      return {
+        results: response.data.map(activity => ({
+          id: activity.id,
+          name: activity.nombre,
+          description: activity.descripcion,
+          cost: activity.costo,
+          arrendador: activity.arrendador,
+          // Add extra fields if needed
+          duration: null, // Add from your actual data model if available
+          location: null  // Add from your actual data model if available
+        })),
+        total: response.data.length
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -25,7 +37,13 @@ class ActivityService {
           'Authorization': `Bearer ${TokenService.getAccessToken()}`
         }
       });
-      return response.data;
+      return {
+        id: response.data.id,
+        name: response.data.nombre,
+        description: response.data.descripcion,
+        cost: response.data.costo,
+        arrendador: response.data.arrendador
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -34,12 +52,23 @@ class ActivityService {
   // Create a new activity
   async createActivity(activityData) {
     try {
-      const response = await axios.post('api/actividades/', activityData, {
+      const payload = {
+        nombre: activityData.name,
+        descripcion: activityData.description,
+        costo: activityData.cost
+      };
+
+      const response = await axios.post('api/actividades/', payload, {
         headers: {
           'Authorization': `Bearer ${TokenService.getAccessToken()}`
         }
       });
-      return response.data;
+      return {
+        id: response.data.id,
+        name: response.data.nombre,
+        description: response.data.descripcion,
+        cost: response.data.costo
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -48,26 +77,23 @@ class ActivityService {
   // Update an existing activity
   async updateActivity(id, activityData) {
     try {
-      const response = await axios.put(`api/actividades/${id}/`, activityData, {
-        headers: {
-          'Authorization': `Bearer ${TokenService.getAccessToken()}`
-        }
-      });
-      return response.data;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
+      const payload = {
+        nombre: activityData.name,
+        descripcion: activityData.description,
+        costo: activityData.cost
+      };
 
-  // Partially update an activity
-  async patchActivity(id, activityData) {
-    try {
-      const response = await axios.patch(`api/actividades/${id}/`, activityData, {
+      const response = await axios.put(`api/actividades/${id}/`, payload, {
         headers: {
           'Authorization': `Bearer ${TokenService.getAccessToken()}`
         }
       });
-      return response.data;
+      return {
+        id: response.data.id,
+        name: response.data.nombre,
+        description: response.data.descripcion,
+        cost: response.data.costo
+      };
     } catch (error) {
       this.handleError(error);
     }
@@ -76,12 +102,12 @@ class ActivityService {
   // Delete an activity
   async deleteActivity(id) {
     try {
-      const response = await axios.delete(`api/actividades/${id}/`, {
+      await axios.delete(`api/actividades/${id}/`, {
         headers: {
           'Authorization': `Bearer ${TokenService.getAccessToken()}`
         }
       });
-      return response.data;
+      return true;
     } catch (error) {
       this.handleError(error);
     }

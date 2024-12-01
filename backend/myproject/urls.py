@@ -1,6 +1,7 @@
-# backend/myproject/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings  # Add this import
+from django.conf.urls.static import static  # Add this import
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,3 +26,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('health/', HealthCheckView.as_view(), name='health_check'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

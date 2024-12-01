@@ -34,7 +34,7 @@ class AuthService {
       
       console.log('Response from /api/usuarios/me/:', response.data);
       
-      // Enhanced arrendador ID retrieval
+      // Recupera la información del arrendador
       let arrendadorId = null;
       if (response.data.tipo_usuario === 'arrendador' && response.data.arrendador_info) {
         arrendadorId = response.data.arrendador_info.id_arrendador;

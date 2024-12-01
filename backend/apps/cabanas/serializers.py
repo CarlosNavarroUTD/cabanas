@@ -44,16 +44,6 @@ class CabanaBaseSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['creada_en', 'actualizada_en']
 
-class CabanaDetailSerializer(CabanaBaseSerializer):
-    """
-    Serializer detallado para Cabana
-    """
-    imagenes = ImagenCabanaSerializer(many=True, read_only=True)
-    resenas = ResenaSerializer(many=True, read_only=True)
-
-    class Meta(CabanaBaseSerializer.Meta):
-        fields = CabanaBaseSerializer.Meta.fields + ['imagenes', 'resenas']
-
 class CabanaListSerializer(serializers.ModelSerializer):
     """
     Serializer para listar Cabanas con información resumida
@@ -71,10 +61,24 @@ class CabanaListSerializer(serializers.ModelSerializer):
 
     def get_imagen_principal(self, obj):
         imagen_principal = obj.imagenes.filter(es_principal=True).first()
-        return imagen_principal.imagen.url if imagen_principal else None
+        if imagen_principal and self.context.get('request'):
+            # Usa request para obtener la URL completa
+            request = self.context.get('request')
+            return request.build_absolute_uri(imagen_principal.imagen.url)
+        return None
 
     def get_ubicacion_nombre(self, obj):
         return str(obj.ubicacion)
+
+class CabanaDetailSerializer(CabanaBaseSerializer):
+    """
+    Serializer detallado para Cabana
+    """
+    imagenes = ImagenCabanaSerializer(many=True, read_only=True)
+    resenas = ResenaSerializer(many=True, read_only=True)
+
+    class Meta(CabanaBaseSerializer.Meta):
+        fields = CabanaBaseSerializer.Meta.fields + ['imagenes', 'resenas']
 
 class CabanaCreateUpdateSerializer(CabanaBaseSerializer):
     """

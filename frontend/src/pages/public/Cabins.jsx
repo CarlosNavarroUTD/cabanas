@@ -88,7 +88,7 @@ function CabinCard({ cabin }) {
           <img
             alt={cabin.nombre}
             className="h-[200px] w-full object-cover"
-            src="/api/placeholder/400/300"
+            src={cabin.imagen_principal || "/api/placeholder/400/300"}
           />
           <div className="p-4">
             <div className="flex items-center justify-between mb-2">

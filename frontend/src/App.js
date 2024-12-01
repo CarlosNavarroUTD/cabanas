@@ -14,7 +14,7 @@ import ManageCabins from './pages/admin/ManageCabins';
 import AddCabinForm from './pages/admin/AddCabinForm';
 import Users from './pages/admin/Users';
 import ProfilePage from './pages/admin/ProfilePage';
-
+import Nosotros from './pages/public/Nosotros';
 // Add these new components
 import ManageActivities from './pages/admin/ManageActivities';
 import AddActivity from './pages/admin/AddActivity';
@@ -35,6 +35,8 @@ const App = () => {
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="nosotros" element={<Nosotros />} />
+
             
           </Route>
 

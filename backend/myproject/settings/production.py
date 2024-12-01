@@ -3,25 +3,17 @@ import os
 from .base import *
 import dj_database_url
 from datetime import timedelta
+from dotenv import load_dotenv
 
-DEBUG = False
 
-# Configuración mejorada de ALLOWED_HOSTS
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'cabanas-mexiquillo.fly.dev',
-    '172.19.1.210',
-    '172.19.2.2',
-    '172.19.0.0/16',
-    # Incluir hosts con puertos
-    '172.19.2.2:8000',
-    '172.19.1.210:8000',
-]
+load_dotenv()
 
-# Agregar hosts adicionales desde variables de entorno
-if os.getenv('ALLOWED_HOSTS'):
-    ALLOWED_HOSTS.extend(os.getenv('ALLOWED_HOSTS', '').split(','))
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+# Configuración de ALLOWED_HOSTS
+DEFAULT_ALLOWED_HOSTS = 'localhost,127.0.0.1,0.0.0.0,0.0.0.0:8081,cabanas-mexiquillo.fly.dev,172.19.1.210,172.19.2.2,172.19.0.0/16,172.19.2.2:8000,172.19.1.210:8000'
+additional_hosts = os.getenv('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',')
+ALLOWED_HOSTS = [host.strip() for host in additional_hosts if host.strip()]
 
 # Configuración de la base de datos
 DATABASES = {
@@ -92,7 +84,8 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
+            #'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django.request': {

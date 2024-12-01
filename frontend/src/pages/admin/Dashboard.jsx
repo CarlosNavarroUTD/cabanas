@@ -16,7 +16,7 @@ const DashboardCard = ({ title, value, icon: Icon }) => (
 const DashboardButton = ({ href, children, icon: Icon }) => (
   <a 
     href={href} 
-    className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+    className="flex items-center px-4 py-2 bg-primary-dark text-white rounded-md hover:bg-primary transition-colors"
   >
     {Icon && <Icon className="mr-2 h-4 w-4" />}
     {children}

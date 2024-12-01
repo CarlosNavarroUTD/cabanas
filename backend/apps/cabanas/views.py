@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, generics  # Added generics here
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -76,6 +76,12 @@ class CabanaViewSet(viewsets.ModelViewSet):
         resenas = Resena.objects.filter(cabana=cabana)
         serializer = ResenaSerializer(resenas, many=True)
         return Response(serializer.data)
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
 
 class UbicacionViewSet(viewsets.ModelViewSet):
     """
@@ -123,3 +129,13 @@ class ResenaViewSet(viewsets.ModelViewSet):
         Asigna el usuario actual como autor de la reseña
         """
         serializer.save(usuario=self.request.user)
+
+
+class CabanaListView(generics.ListAPIView):
+    queryset = Cabana.objects.all()
+    serializer_class = CabanaListSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context

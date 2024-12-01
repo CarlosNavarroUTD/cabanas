@@ -181,7 +181,7 @@ const ProfilePage = () => {
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
+            className="bg-primary-dark text-white px-4 py-2 rounded flex items-center hover:bg-primary"
           >
             <Edit className="mr-2" /> Editar
           </button>

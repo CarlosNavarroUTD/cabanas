@@ -48,36 +48,34 @@ const AddCabinForm = () => {
   // Estado inicial y verificación de autenticación
   useEffect(() => {
     const initializeComponent = async () => {
-     setIsInitializing(true);
-     try {
-       if (!isAuthenticated) {
-         navigate('/login', { state: { returnTo: '/add-cabin' } });
-         return;
-       }
-       
-       // Verificar que el usuario sea arrendador y tenga ID
-       if (!currentUser?.persona_info?.arrendador || !currentUser?.arrendador_id) {
-        setError('No tienes permisos de arrendador o falta información del perfil');
-        navigate('/admin/profile');
-        return;
+      setIsInitializing(true);
+      try {
+        if (!isAuthenticated) {
+          navigate('/login', { state: { returnTo: '/add-cabin' } });
+          return;
+        }
+        
+        // Correct verification of arrendador
+        /*if (currentUser?.tipo_usuario !== 'arrendador' || !currentUser?.arrendador_id) {
+          setError('No tienes permisos de arrendador o falta información del perfil');
+          navigate('/admin/profile');
+          return;
+        }*/
+        
+        console.log('Current user:', currentUser);
+        console.log('Arrendador ID:', currentUser.arrendador_id);
+        
+        await loadServicios();
+      } catch (error) {
+        console.error('Error de inicialización:', error);
+        /*setError('Error al inicializar el formulario');*/
+      } finally {
+        setIsInitializing(false);
       }
-       
-       console.log('Current user:', currentUser);
-       console.log('Arrendador ID:', currentUser.persona_info.arrendador.id_arrendador);
-       
-       await loadServicios();
-     } catch (error) {
-       console.error('Error de inicialización:', error);
-       setError('Error al inicializar el formulario');
-     } finally {
-       setIsInitializing(false);
-     }
-   };
-
-   initializeComponent();
- }, [isAuthenticated, navigate, currentUser, loadServicios]);
-
+    };
   
+    initializeComponent();
+  }, [isAuthenticated, navigate, currentUser, loadServicios]);  
   
   const validateBasicInfo = () => {
     return (
@@ -369,7 +367,7 @@ const AddCabinForm = () => {
             className={`flex items-center px-4 py-2 rounded ${
               (step === 1 && !validateBasicInfo()) || isLoading || isLoadingServices
                 ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-primary-dark text-white hover:bg-primary'
             }`}
           >
             Siguiente <ChevronRight className="ml-2" />

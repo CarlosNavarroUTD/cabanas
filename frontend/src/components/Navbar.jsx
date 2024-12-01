@@ -11,8 +11,8 @@ const Navbar = () => {
           to="/"
           className={`${
             location.pathname === '/'
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              ? 'bg-accent text-white'
+              : 'text-gray-300 hover:bg-primary hover:text-white'
           } px-3 py-2 rounded-md text-sm font-medium`}
         >
           Home
@@ -21,18 +21,28 @@ const Navbar = () => {
           to="/cabins"
           className={`${
             location.pathname.startsWith('/cabins')
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              ? 'bg-accent text-white'
+              : 'text-gray-300 hover:bg-primary hover:text-white'
           } px-3 py-2 rounded-md text-sm font-medium`}
         >
           Cabañas
         </Link>
         <Link
+          to="/packages"
+          className={`${
+            location.pathname === '/login'  
+              ? 'bg-accent text-white'
+              : 'text-gray-300 hover:bg-primary hover:text-white'
+          } px-3 py-2 rounded-md text-sm font-medium`}
+        >
+          Paquetes
+        </Link>
+        <Link
           to="/login"
           className={`${
             location.pathname === '/login'
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              ? 'bg-accent text-white'
+              : 'text-gray-300 hover:bg-primary hover:text-white'
           } px-3 py-2 rounded-md text-sm font-medium`}
         >
           Iniciar Sesión
@@ -41,8 +51,8 @@ const Navbar = () => {
           to="/register"
           className={`${
             location.pathname === '/register'
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              ? 'bg-accent text-white'
+              : 'text-gray-300 hover:bg-primary hover:text-white'
           } px-3 py-2 rounded-md text-sm font-medium`}
         >
           Registrarse

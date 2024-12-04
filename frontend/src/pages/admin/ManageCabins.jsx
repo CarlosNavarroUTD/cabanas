@@ -36,13 +36,26 @@ export default function ManageCabins() {
 
   // Handle delete cabin
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('¿Estás seguro de que quieres eliminar esta cabaña?');
+    
+    if (!confirmDelete) return;
+  
     try {
       await CabinService.deleteCabin(id);
-      // Remove the deleted cabin from the state
       setCabanas(prevCabanas => prevCabanas.filter(cabana => cabana.id !== id));
+      
+      // Optional: Add success notification
+      alert('Cabaña eliminada exitosamente');
     } catch (err) {
-      console.error('Error deleting cabin:', err);
-      setError('No se pudo eliminar la cabaña. Por favor, intente de nuevo.');
+      console.error('Detailed delete error:', err);
+      console.error('Error response:', err.response);
+      
+      const errorMessage = err.response?.data?.detail || 
+                           err.message || 
+                           'No se pudo eliminar la cabaña';
+      
+      setError(errorMessage);
+      alert(errorMessage);
     }
   };
 

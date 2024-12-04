@@ -4,10 +4,27 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Nueva configuración para PostgreSQL
+import os
+from urllib.parse import urlparse
+
+# Obtener la URL de la base de datos desde la variable de entorno o usar la proporcionada.
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://neondb_owner:rHjIMixvyb09@ep-proud-band-a5orqko0.us-east-2.aws.neon.tech/neondb?sslmode=require')
+
+# Parsear la URL de la base de datos
+url = urlparse(DATABASE_URL)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': url.path[1:],  # Remueve el primer caracter '/' de la URL
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port or 5432,  # 5432 es el puerto por defecto para PostgreSQL
+        'OPTIONS': {
+            'sslmode': 'require',  # Aseguramos que la conexión sea segura
+        },
     }
 }
 

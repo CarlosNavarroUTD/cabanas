@@ -16,16 +16,19 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const { currentUser, setCurrentUser, isAuthenticated } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Defensive initial state with optional chaining
   const [formData, setFormData] = useState({
-    nombre_usuario: '',
-    email: '',
-    nombre: '',
-    apellido: '',
-    dni: '',
-    password: '',
-    confirmPassword: '',
-    nombre_arrendador: currentUser.tipo_usuario === 'arrendador' ?
-      (currentUser.arrendador_info?.nombre || '') : '',
+    nombre_usuario: currentUser?.nombre_usuario || '',
+    email: currentUser?.email || '',
+    nombre: currentUser?.persona_info?.nombre || '',
+    apellido: currentUser?.persona_info?.apellido || '',
+    dni: currentUser?.persona_info?.dni || '',
+    contraseña: '',
+    confirmarContraseña: '',
+    nombre_arrendador: currentUser?.tipo_usuario === 'arrendador' 
+      ? (currentUser?.arrendador_info?.nombre || '') 
+      : '',
   });
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -44,8 +47,11 @@ const ProfilePage = () => {
         nombre: currentUser.persona_info?.nombre || '',
         apellido: currentUser.persona_info?.apellido || '',
         dni: currentUser.persona_info?.dni || '',
-        password: '',
-        confirmPassword: ''
+        contraseña: '',
+        confirmarContraseña: '',
+        nombre_arrendador: currentUser.tipo_usuario === 'arrendador' 
+          ? (currentUser.arrendador_info?.nombre || '') 
+          : '',
       });
     }
   }, [currentUser, isAuthenticated, navigate]);
@@ -72,26 +78,37 @@ const ProfilePage = () => {
     return true;
   };
 
+  const findErrorMessage = (errorData) => {
+    const errorHandlers = [
+      { key: 'usuario', prefix: 'Error de usuario: ' },
+      { key: 'persona', prefix: 'Error de persona: ' },
+      { key: 'arrendador', prefix: 'Error de arrendador: ' }
+    ];
+
+    for (const handler of errorHandlers) {
+      if (errorData[handler.key]) {
+        return handler.prefix + Object.values(errorData[handler.key])[0];
+      }
+    }
+    return errorData.detail || errorData.error || 'Error desconocido';
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-
+  
     if (!validateForm()) return;
-
+  
     setIsLoading(true);
-
+  
     try {
       const token = TokenService.getAccessToken();
-      console.log('Current User:', currentUser);
-      console.log('Access Token:', token);
-
-      // Preparar datos de actualización base
+      
       const updateData = {
         usuario: {
           nombre_usuario: formData.nombre_usuario,
           email: formData.email,
-          ...(formData.password && { password: formData.password })
+          ...(formData.password && { contraseña: formData.password })
         },
         persona: {
           nombre: formData.nombre,
@@ -99,16 +116,14 @@ const ProfilePage = () => {
           dni: formData.dni
         }
       };
-
-      // Agregar datos de arrendador si el usuario es arrendador
-      if (currentUser.tipo_usuario === 'arrendador') {
+  
+      // Add arrendador data conditionally
+      if (currentUser?.tipo_usuario === 'arrendador') {
         updateData.arrendador = {
           nombre: formData.nombre_arrendador || formData.nombre
         };
       }
-
-      console.log('Update Data:', updateData);
-
+  
       const response = await axios.patch(
         `/api/usuarios/${currentUser.id_usuario}/update_profile/`,
         updateData,
@@ -119,60 +134,73 @@ const ProfilePage = () => {
           }
         }
       );
-
-      console.log('Update Response:', response.data);
-
-      // Actualizar el usuario actual con los datos de respuesta
+  
+      // Comprehensive error handling
+      const errorHandlers = [
+        { key: 'usuario', prefix: 'Error de usuario: ' },
+        { key: 'persona', prefix: 'Error de persona: ' },
+        { key: 'arrendador', prefix: 'Error de arrendador: ' }
+      ];
+  
+      const findErrorMessage = (errorData) => {
+        for (const handler of errorHandlers) {
+          if (errorData[handler.key]) {
+            return handler.prefix + Object.values(errorData[handler.key])[0];
+          }
+        }
+        return errorData.detail || errorData.error || 'Error desconocido';
+      };
+  
+      if (response.data.errors) {
+        const errorMessage = findErrorMessage(response.data.errors);
+        setError(errorMessage);
+        return;
+      }
+  
+      // Update user data
       const updatedUserData = {
         ...currentUser,
         ...response.data,
         persona_info: response.data.persona_info || currentUser.persona_info,
         arrendador_info: response.data.arrendador_info || currentUser.arrendador_info
       };
-
+  
       setCurrentUser(updatedUserData);
       setSuccessMessage('Perfil actualizado exitosamente');
       setIsEditing(false);
-
-      // Restablecer los campos de contraseña
+  
+      // Reset password fields
       setFormData(prev => ({
         ...prev,
         password: '',
         confirmPassword: ''
       }));
-
+  
     } catch (error) {
-      console.error('Update Error:', error.response || error);
-
-      // Manejo detallado de errores
-      let errorMessage = 'Error al actualizar el perfil';
-
-      if (error.response) {
-        // Errores de validación del backend
-        if (error.response.data.usuario) {
-          errorMessage = Object.values(error.response.data.usuario)[0];
-        } else if (error.response.data.persona) {
-          errorMessage = Object.values(error.response.data.persona)[0];
-        } else if (error.response.data.arrendador) {
-          errorMessage = Object.values(error.response.data.arrendador)[0];
-        } else if (error.response.data.detail) {
-          errorMessage = error.response.data.detail;
-        } else if (error.response.data.error) {
-          errorMessage = error.response.data.error;
-        }
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
+      console.error('Update Error:', error);
+  
+      const errorMessage = error.response?.data 
+        ? findErrorMessage(error.response.data)
+        : error.message || 'Error al actualizar el perfil';
+  
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!currentUser) return null;
+  if (!isAuthenticated || !currentUser) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-xl">Cargando...</div>
+      </div>
+    );
+  }
 
   return (
+    !isAuthenticated || !currentUser ? (
+      <div>Cargando...</div>
+    ) : (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold flex items-center">
@@ -353,7 +381,7 @@ const ProfilePage = () => {
       )}
 
     </div>
-  );
+  ));
 };
 
 export default ProfilePage;

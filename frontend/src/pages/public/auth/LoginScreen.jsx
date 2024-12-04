@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../../services/auth/AuthContext';
 import AuthService from '../../../services/auth/AuthService';
+import TokenService from '../../../services/auth/tokenService';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +10,28 @@ const LoginScreen = () => {
   const [error, setError] = useState('');
   const { setIsAuthenticated, setCurrentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
+
+
+  useEffect(() => {
+    const isAuthenticated = TokenService.getAccessToken();
+    if (isAuthenticated) {
+      const userType = TokenService.getUserType();
+      
+      // Redirigir según el tipo de usuario
+      switch(userType) {
+        case 'admin':
+        case 'arrendador':
+          navigate('/admin', { replace: true });
+          break;
+        case 'cliente':
+          navigate('/', { replace: true });
+          break;
+        default:
+          navigate('/login');
+      }
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +41,13 @@ const LoginScreen = () => {
 
       setCurrentUser(userData);
       setIsAuthenticated(true);
-      navigate('/admin', { replace: true });
+
+      // Redirigir según el tipo de usuario
+      if (userData.tipo_usuario === 'admin' || userData.tipo_usuario === 'arrendador') {
+        navigate('/admin', { replace: true });
+      } else if (userData.tipo_usuario === 'cliente') {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError('Login failed. Please check your credentials and try again.');

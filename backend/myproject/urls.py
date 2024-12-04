@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api/usuarios/<int:pk>/update_profile/', UsuarioViewSet.as_view({'patch': 'update_profile'}), name='usuario-update-profile'),
     path('api/usuarios/me/', CurrentUserView.as_view(), name='current_user'),
+    path('api/usuarios/register/', UsuarioViewSet.as_view({'post': 'register'}), name='usuario-register'),
     path('api/actividades/', include('apps.actividades.urls')),
     path('api/cabanas/', include('apps.cabanas.urls')),
     #path('api/reservas/', include('apps.reservas.urls')),

@@ -3,10 +3,11 @@ import { AlertCircle, ChevronRight, ChevronLeft, Check, Loader } from 'lucide-re
 import CabinService from '.././../services/api/CabinService';
 import { AuthContext } from '../../services/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import AuthService from '../../services/auth/AuthService'; // Add this import
 
 const AddCabinForm = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated } = useContext(AuthContext);
+  const { currentUser, isAuthenticated, setCurrentUser } = useContext(AuthContext);
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [step, setStep] = useState(1);
@@ -48,34 +49,34 @@ const AddCabinForm = () => {
   // Estado inicial y verificación de autenticación
   useEffect(() => {
     const initializeComponent = async () => {
-      setIsInitializing(true);
       try {
+        console.log('Current User on Mount:', currentUser);
+        
         if (!isAuthenticated) {
-          navigate('/login', { state: { returnTo: '/add-cabin' } });
+          navigate('/login');
+          return;
+        }
+  
+        // Force user fetch if not present
+        if (!currentUser) {
+          const fetchedUser = await AuthService.getCurrentUser();
+          setCurrentUser(fetchedUser);
+        }
+  
+        if (currentUser?.tipo_usuario !== 'arrendador') {
+          navigate('/admin/profile');
           return;
         }
         
-        // Correct verification of arrendador
-        /*if (currentUser?.tipo_usuario !== 'arrendador' || !currentUser?.arrendador_id) {
-          setError('No tienes permisos de arrendador o falta información del perfil');
-          navigate('/admin/profile');
-          return;
-        }*/
-        
-        console.log('Current user:', currentUser);
-        console.log('Arrendador ID:', currentUser.arrendador_id);
-        
         await loadServicios();
       } catch (error) {
-        console.error('Error de inicialización:', error);
-        /*setError('Error al inicializar el formulario');*/
-      } finally {
-        setIsInitializing(false);
+        console.error('Initialization error:', error);
+        navigate('/login');
       }
     };
   
     initializeComponent();
-  }, [isAuthenticated, navigate, currentUser, loadServicios]);  
+  }, [isAuthenticated, currentUser, navigate, loadServicios]);
   
   const validateBasicInfo = () => {
     return (

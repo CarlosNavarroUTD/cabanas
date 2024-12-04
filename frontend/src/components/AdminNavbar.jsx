@@ -2,7 +2,8 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FaUserCircle, 
-  FaSignOutAlt 
+  FaSignOutAlt,
+  FaEye 
 } from 'react-icons/fa';
 import { AuthContext } from '../services/auth/AuthContext';
 import AuthService from '../services/auth/AuthService';
@@ -30,6 +31,11 @@ const AdminNavbar = () => {
     }
   };
 
+  const handleViewSite = () => {
+    // Navigate to the main site or home page
+    window.open('/', '_blank');
+  };
+
   return (
     <header className="bg-primary-dark py-4 px-6 text-white flex justify-end items-center fixed top-0 left-16 right-0 z-40">
       <div className="relative">
@@ -52,6 +58,13 @@ const AdminNavbar = () => {
               <FaUserCircle className="mr-2" />
               Perfil
             </Link>
+            <button
+              onClick={handleViewSite}
+              className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+            >
+              <FaEye className="mr-2" />
+              Ver sitio
+            </button>
             <button
               onClick={handleLogout}
               className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"

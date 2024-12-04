@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './services/auth/AuthContext';
 import PrivateRoute from './services/auth/PrivateRoute';
+import TokenService from './services/auth/tokenService';
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
 import Home from './pages/public/Home';
@@ -15,17 +16,27 @@ import AddCabinForm from './pages/admin/AddCabinForm';
 import Users from './pages/admin/Users';
 import ProfilePage from './pages/admin/ProfilePage';
 import Nosotros from './pages/public/Nosotros';
-// Add these new components
 import ManageActivities from './pages/admin/ManageActivities';
 import AddActivity from './pages/admin/AddActivity';
 import ManagePackages from './pages/admin/ManagePackages';
 import AddPackage from './pages/admin/AddPackage';
 import ManageBookings from './pages/admin/ManageBookings';
 
+// Admin-only Route Component
+const AdminRoute = ({ children }) => {
+  const isAdmin = TokenService.isAdmin();
+  
+  return isAdmin ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/login" replace />
+  );
+};
+
 const App = () => {
   return (
-    <Router>
-      <AuthProvider>
+    <AuthProvider>
+      <Router>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<PublicLayout />}>
@@ -34,14 +45,20 @@ const App = () => {
             <Route path="cabins/:id" element={<CabinDetail />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
-            <Route path="profile" element={<ProfilePage />} />
             <Route path="nosotros" element={<Nosotros />} />
-
-            
           </Route>
 
-          {/* Admin routes */}
-          <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+          
+          <Route 
+            path="/admin" 
+            element={
+              <PrivateRoute>
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              </PrivateRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="profile" element={<ProfilePage />} />
             
@@ -49,22 +66,23 @@ const App = () => {
             <Route path="cabins" element={<ManageCabins />} />
             <Route path="cabins/add" element={<AddCabinForm />} />
             
+            {/* Users routes */}
+            <Route path="users" element={<Users />} />
+            
             {/* Activities routes */}
-            <Route path="actividades" element={<ManageActivities />} />
-            <Route path="actividades/añadir" element={<AddActivity />} />
+            <Route path="activities" element={<ManageActivities />} />
+            <Route path="activities/add" element={<AddActivity />} />
             
             {/* Packages routes */}
-            <Route path="paquetes" element={<ManagePackages />} />
-            <Route path="paquetes/añadir" element={<AddPackage />} />
+            <Route path="packages" element={<ManagePackages />} />
+            <Route path="packages/add" element={<AddPackage />} />
             
             {/* Bookings routes */}
-            <Route path="reservas" element={<ManageBookings />} />
-            
-            <Route path="users" element={<Users />} />
+            <Route path="bookings" element={<ManageBookings />} />
           </Route>
         </Routes>
-      </AuthProvider>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 };
 

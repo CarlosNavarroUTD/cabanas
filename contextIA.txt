@@ -1,360 +1,613 @@
-from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
-# Custom manager for the Usuario model
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('El Email es obligatorio')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, password, **extra_fields)
+Start new chat
+Starred
+Star chats you use often
+Recents
+(New chat)
+Troubleshooting Django Authentication Issues
+User Authentication and Role Verification
+Integrating Admin Navbar Menu into Current Navbar
+Login Error: AuthService.login not a function
+Understanding Private Routes in React
+Implementing User Type Checks in React App
+Debugging User Registration Serializer Error
+View all
+Free plan
 
-class Usuario(AbstractBaseUser, PermissionsMixin):
-    id_usuario = models.AutoField(primary_key=True)
-    email = models.EmailField(unique=True)
-    nombre_usuario = models.CharField(max_length=255, unique=True)
-    tipo_usuario = models.CharField(max_length=20, choices=[
-        ('cliente', 'Cliente'),
-        ('arrendador', 'Arrendador'),
-        ('admin', 'Administrador'),
-    ])
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+CN
+carlos_3041230362@utd.edu.mx
+Help & support
+CN
 
-    objects = CustomUserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre_usuario', 'tipo_usuario']
+Untitled
 
-    # Relaciones directas a Arrendador y Cliente
-    @property
-    def arrendador(self):
-        return getattr(self, 'arrendador_relation', None)
 
-    @property
-    def cliente(self):
-        return getattr(self, 'cliente_relation', None)
+What can I help you with today?
 
-    class Meta:
-        db_table = 'Usuario'
-        verbose_name = 'Usuario'
-        verbose_name_plural = 'Usuarios'
+Enseñame por que ocurre el erro ry como solucionar?
 
-    def __str__(self):
-        return self.email
-
-class Persona(models.Model):
-    id_persona = models.AutoField(primary_key=True)
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=255)
-    apellido = models.CharField(max_length=255)
-    dni = models.CharField(max_length=20, unique=True, null=True, blank=True)
-
-    class Meta:
-        db_table = 'Persona'
-        verbose_name = 'Persona'
-        verbose_name_plural = 'Personas'
-
-    def __str__(self):
-        return f"{self.nombre} {self.apellido}"
-
-class Arrendador(models.Model):
-    id_arrendador = models.AutoField(primary_key=True)
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='arrendador_relation')
-
-    class Meta:
-        db_table = 'Arrendador'
-        verbose_name = 'Arrendador'
-        verbose_name_plural = 'Arrendadores'
-
-    def __str__(self):
-        return f"Arrendador: {self.usuario.email}"
-
-class Cliente(models.Model):
-    id_cliente = models.AutoField(primary_key=True)
-    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='cliente_relation')
-
-    class Meta:
-        db_table = 'Cliente'
-        verbose_name = 'Cliente'
-        verbose_name_plural = 'Clientes'
-
-    def __str__(self):
-        return f"Cliente: {self.usuario.email}"
+No file chosen
 
 
 
-        
-Este modelo relaciona mis usuarios con arrendador o cliente, y solo una persona con un usuario
+Haiku
 
-Pero personas ya no tienen relación cliente o arrendador, 
+Concise
+Use shift + return for new line
+1
+You are out of free messages until 11 AM
+Subscribe
 
-Corrige el resto de mis archivos
 
-# apps/usuarios/views.py
-from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .permissions import *
-from .models import Usuario, Persona, Arrendador, Cliente
-from .serializers import UsuarioSerializer, PersonaSerializer, ArrendadorSerializer, ClienteSerializer
+import React, { useState, useEffect, useContext } from 'react'; import { useNavigate } from 'react-router-dom'; import { AlertCircle, Save, Edit, User, Check, Loader } from 'lucide-react';
+pasted
 
-class UsuarioViewSet(viewsets.ModelViewSet):
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
 
-    def get_permissions(self):
-        if self.action == 'create':
-            permission_classes = [RegistroPermission]
-        elif self.action in ['update', 'partial_update', 'destroy']:
-            permission_classes = [PropietarioOAdministrador]
-        elif self.action == 'list':
-            permission_classes = [EsAdministrador]
-        else:
-            permission_classes = [permissions.IsAuthenticated]
-        return [permission() for permission in permission_classes]
+// AuthContext.jsx import React, { createContext, useState, useEffect } from 'react'; import AuthService from './AuthService'; import TokenService from './tokenService'; export const AuthContext = cr
+pasted
+Chat controls
 
-class PersonaViewSet(viewsets.ModelViewSet):
-    queryset = Persona.objects.all()
-    serializer_class = PersonaSerializer
-    permission_classes = [PersonaPermission]
-    authentication_classes = [JWTAuthentication]
+Haiku
+Fastest model for daily tasks Learn more
 
-    def get_queryset(self):
-        if self.request.user.tipo_usuario == 'admin':
-            return Persona.objects.all()
-        return Persona.objects.filter(id_usuario=self.request.user)
+Content
+No content added yet
+Add images, PDFs, docs, spreadsheets, and more to summarize, analyze, and query content with Claude.
+Chat styles
+Font
 
-class ArrendadorViewSet(viewsets.ModelViewSet):
-    queryset = Arrendador.objects.all()
-    serializer_class = ArrendadorSerializer
-    permission_classes = [ArrendadorPermission]
-    authentication_classes = [JWTAuthentication]
+Default
 
-    def get_queryset(self):
-        if self.request.user.tipo_usuario == 'admin':
-            return Arrendador.objects.all()
-        elif self.request.user.tipo_usuario == 'arrendador':
-            return Arrendador.objects.filter(
-                id_arrendador__id_usuario=self.request.user
-            )
-        return Arrendador.objects.none()
+paste-2.txt
 
-class ClienteViewSet(viewsets.ModelViewSet):
-    queryset = Cliente.objects.all()
-    serializer_class = ClienteSerializer
-    permission_classes = [ClientePermission]
-    authentication_classes = [JWTAuthentication]
+4.99 KB •113 lines
+•
+Formatting may be inconsistent from source
 
-    def get_queryset(self):
-        if self.request.user.tipo_usuario == 'admin':
-            return Cliente.objects.all()
-        elif self.request.user.tipo_usuario == 'cliente':
-            return Cliente.objects.filter(
-                id_cliente__id_usuario=self.request.user
-            )
-        return Cliente.objects.none()
+// AuthContext.jsx
+import React, { createContext, useState, useEffect } from 'react';
+import AuthService from './AuthService';
+import TokenService from './tokenService';
 
-class CurrentUserView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+export const AuthContext = createContext();
 
-    def get(self, request):
-        serializer = UsuarioSerializer(request.user)
-        return Response(serializer.data)
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!TokenService.getAccessToken());
 
-from rest_framework import serializers
-from .models import Usuario, Persona, Arrendador, Cliente
-
-class UsuarioSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    persona_info = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Usuario
-        fields = ['id_usuario', 'nombre_usuario', 'email', 'tipo_usuario', 
-                 'arrendador', 'persona_info', 'password', 'is_active', 'is_staff']
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'is_active': {'read_only': True},
-            'is_staff': {'read_only': True}
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (TokenService.getAccessToken()) {
+        try {
+          const user = await AuthService.getCurrentUser();
+          setCurrentUser(user);
+          setIsAuthenticated(true);
+        } catch (error) {
+          setCurrentUser(null);
+          setIsAuthenticated(false);
+          TokenService.removeTokens();
         }
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
-    def get_persona_info(self, obj):
-        try:
-            persona = obj.persona
-            data = {
-                'id_persona': persona.id_persona,
-                'nombre': persona.nombre,
-                'apellido': persona.apellido,
-                'dni': persona.dni
-            }
-            # Si es arrendador, incluir información adicional
-            if obj.tipo_usuario == 'arrendador' and hasattr(persona, 'arrendador'):
-                data['arrendador'] = {
-                    'id_arrendador': persona.arrendador.id_arrendador_id
-                }
-            return data
-        except Persona.DoesNotExist:
-            return None
-
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = Usuario.objects.create_user(
-            password=password,
-            **validated_data
-        )
-        return user
-
-    def update(self, instance, validated_data):
-        if 'password' in validated_data:
-            password = validated_data.pop('password')
-            instance.set_password(password)
-        return super().update(instance, validated_data)
-
-class PersonaSerializer(serializers.ModelSerializer):
-    usuario = UsuarioSerializer(source='id_usuario', read_only=True)
-    id_usuario = serializers.PrimaryKeyRelatedField(
-        queryset=Usuario.objects.all(),
-        write_only=True
-    )
-
-    class Meta:
-        model = Persona
-        fields = ['id_persona', 'id_usuario', 'usuario', 'nombre', 
-                 'apellido', 'dni']
-
-class ArrendadorSerializer(serializers.ModelSerializer):
-    persona = PersonaSerializer(source='id_arrendador', read_only=True)
-    id_arrendador = serializers.PrimaryKeyRelatedField(
-        queryset=Persona.objects.all(),
-        write_only=True
-    )
-
-    class Meta:
-        model = Arrendador
-        fields = ['id_arrendador', 'persona']
-
-    def validate_id_arrendador(self, value):
-        if value.id_usuario.tipo_usuario != 'arrendador':
-            raise serializers.ValidationError(
-                "El usuario debe ser de tipo arrendador"
-            )
-        return value
-
-class ClienteSerializer(serializers.ModelSerializer):
-    persona = PersonaSerializer(source='id_cliente', read_only=True)
-    id_cliente = serializers.PrimaryKeyRelatedField(
-        queryset=Persona.objects.all(),
-        write_only=True
-    )
-
-    class Meta:
-        model = Cliente
-        fields = ['id_cliente', 'persona']
-
-    def validate_id_cliente(self, value):
-        if value.id_usuario.tipo_usuario != 'cliente':
-            raise serializers.ValidationError(
-                "El usuario debe ser de tipo cliente"
-            )
-        return value
-
-# apps/usuarios/admin.py
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import Usuario, Persona, Arrendador
-from .forms import PersonaForm
-from .models import models
+  return (
+    <AuthContext.Provider value={{ 
+      currentUser, 
+      isAuthenticated, 
+      setIsAuthenticated, 
+      setCurrentUser 
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
 
-class CustomUserCreationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        model = Usuario
-        fields = ('email', 'nombre_usuario', 'tipo_usuario')
+import axios from '../api/config';
 
-class CustomUserChangeForm(UserChangeForm):
-    class Meta(UserChangeForm.Meta):
-        model = Usuario
-        fields = ('email', 'nombre_usuario', 'tipo_usuario')
+class TokenService {
+  getAccessToken() {
+    return localStorage.getItem('accessToken');
+  }
 
-class PersonaInline(admin.StackedInline):
-    model = Persona
-    can_delete = False
-    verbose_name_plural = 'Información Personal'
-    fields = ('nombre', 'apellido', 'dni')
-    extra = 1
-    formfield_overrides = {
-        models.CharField: {'required': False},
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
+  }
+
+  getUserType() {
+    return localStorage.getItem('userType');
+  }
+
+  saveTokens(accessToken, refreshToken, userType = null) {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('userType', userType);
+    
+  }
+
+  removeTokens() {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userType');
+  }
+
+  async refreshAccessToken() {
+    try {
+      const response = await axios.post('/api/token/refresh/', {
+        refresh: this.getRefreshToken(),
+      });
+      this.saveTokens(
+        response.data.access, 
+        response.data.refresh, 
+        response.data.user_type // Assuming the backend returns user type
+      );
+      return response.data.access;
+    } catch (error) {
+      this.removeTokens();
+      throw error;
+    }
+  }
+
+  isAdmin() {
+    const userType = this.getUserType();
+    console.log('Checking admin status:', {
+      userType,
+      isAdmin: userType === 'admin' || userType === 'arrendador'
+    });
+    return userType === 'admin' || userType === 'arrendador';
+  }
+}
+
+export default new TokenService();
+
+Uncaught runtime errors:
+
+×
+
+ERROR
+
+Cannot read properties of null (reading 'tipo_usuario') TypeError: Cannot read properties of null (reading 'tipo_usuario') at ProfilePage (http://localhost:3000/static/js/bundle.js:4992:36) at renderWithHooks (http://localhost:3000/static/js/bundle.js:33079:22) at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:37050:17) at beginWork (http://localhost:3000/static/js/bundle.js:38353:20) at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:23335:18) at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:23379:20) at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:23436:35) at beginWork$1 (http://localhost:3000/static/js/bundle.js:43334:11) at performUnitOfWork (http://localhost:3000/static/js/bundle.js:42582:16) at workLoopSync (http://localhost:3000/static/js/bundle.js:42505:9)
+
+ERROR
+
+Cannot read properties of null (reading 'tipo_usuario') TypeError: Cannot read properties of null (reading 'tipo_usuario') at ProfilePage (http://localhost:3000/static/js/bundle.js:4992:36) at renderWithHooks (http://localhost:3000/static/js/bundle.js:33079:22) at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:37050:17) at beginWork (http://localhost:3000/static/js/bundle.js:38353:20) at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:23335:18) at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:23379:20) at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:23436:35) at beginWork$1 (http://localhost:3000/static/js/bundle.js:43334:11) at performUnitOfWork (http://localhost:3000/static/js/bundle.js:42582:16) at workLoopSync (http://localhost:3000/static/js/bundle.js:42505:9)
+
+ERROR
+
+Cannot read properties of null (reading 'tipo_usuario') TypeError: Cannot read properties of null (reading 'tipo_usuario') at ProfilePage (http://localhost:3000/static/js/bundle.js:4992:36) at renderWithHooks (http://localhost:3000/static/js/bundle.js:33079:22) at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:37050:17) at beginWork (http://localhost:3000/static/js/bundle.js:38353:20) at beginWork$1 (http://localhost:3000/static/js/bundle.js:43312:18) at performUnitOfWork (http://localhost:3000/static/js/bundle.js:42582:16) at workLoopSync (http://localhost:3000/static/js/bundle.js:42505:9) at renderRootSync (http://localhost:3000/static/js/bundle.js:42478:11) at recoverFromConcurrentError (http://localhost:3000/static/js/bundle.js:41970:24) at performConcurrentWorkOnRoot (http://localhost:3000/static/js/bundle.js:41883:26)
+
+
+
+
+Start new chat
+Starred
+Star chats you use often
+Recents
+(New chat)
+Troubleshooting Django Authentication Issues
+User Authentication and Role Verification
+Integrating Admin Navbar Menu into Current Navbar
+Login Error: AuthService.login not a function
+Understanding Private Routes in React
+Implementing User Type Checks in React App
+Debugging User Registration Serializer Error
+View all
+Free plan
+
+CN
+carlos_3041230362@utd.edu.mx
+Help & support
+CN
+
+
+Untitled
+
+
+What can I help you with today?
+
+Enseñame por que ocurre el erro ry como solucionar?
+
+No file chosen
+
+
+
+Haiku
+
+Concise
+Use shift + return for new line
+1
+You are out of free messages until 11 AM
+Subscribe
+
+
+import React, { useState, useEffect, useContext } from 'react'; import { useNavigate } from 'react-router-dom'; import { AlertCircle, Save, Edit, User, Check, Loader } from 'lucide-react';
+pasted
+
+
+// AuthContext.jsx import React, { createContext, useState, useEffect } from 'react'; import AuthService from './AuthService'; import TokenService from './tokenService'; export const AuthContext = cr
+pasted
+Chat controls
+
+Haiku
+Fastest model for daily tasks Learn more
+
+Content
+No content added yet
+Add images, PDFs, docs, spreadsheets, and more to summarize, analyze, and query content with Claude.
+Chat styles
+Font
+
+Default
+
+Pasted content
+
+10.94 KB •362 lines
+•
+Formatting may be inconsistent from source
+
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  AlertCircle,
+  Save,
+  Edit,
+  User,
+  Check,
+  Loader
+} from 'lucide-react';
+import { AuthContext } from '../../services/auth/AuthContext';
+import axios from '../../services/api/config';
+import TokenService from '../../services/auth/tokenService';
+
+const ProfilePage = () => {
+  const navigate = useNavigate();
+  const { currentUser, setCurrentUser, isAuthenticated } = useContext(AuthContext);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    nombre_usuario: '',
+    email: '',
+    nombre: '',
+    apellido: '',
+    dni: '',
+    password: '',
+    confirmPassword: '',
+    nombre_arrendador: currentUser.tipo_usuario === 'arrendador' ?
+      (currentUser.arrendador_info?.nombre || '') : '',
+  });
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
     }
 
-@admin.register(Usuario)
-class UsuarioAdmin(UserAdmin):
-    search_fields = ['email', 'nombre_usuario']
-    list_display = ('email', 'nombre_usuario', 'tipo_usuario', 'is_active')
-    list_filter = ('is_active', 'tipo_usuario')
-    
-    list_display = ('email', 'nombre_usuario', 'tipo_usuario', 'get_nombre_completo', 'is_active', 'is_staff')
-    list_filter = ('tipo_usuario', 'is_active', 'is_staff')
-    search_fields = ('email', 'nombre_usuario', 'persona__nombre', 'persona__apellido')
-    ordering = ('email',)
-    
-    fieldsets = (
-        (None, {
-            'fields': ('email', 'nombre_usuario', 'password')
-        }),
-        ('Información de Acceso', {
-            'fields': ('tipo_usuario',)
-        }),
-        ('Permisos', {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'nombre_usuario', 'tipo_usuario', 'password1', 'password2'),
-        }),
-    )
-    
-    inlines = [PersonaInline]
+    if (currentUser) {
+      setFormData({
+        nombre_usuario: currentUser.nombre_usuario || '',
+        email: currentUser.email || '',
+        nombre: currentUser.persona_info?.nombre || '',
+        apellido: currentUser.persona_info?.apellido || '',
+        dni: currentUser.persona_info?.dni || '',
+        password: '',
+        confirmPassword: '',
+        nombre_arrendador: currentUser.tipo_usuario === 'arrendador' 
+          ? (currentUser.arrendador_info?.nombre || '') 
+          : '',
+      });
+    }
+  }, [currentUser, isAuthenticated, navigate]);
 
-    def get_nombre_completo(self, obj):
-        try:
-            persona = obj.persona
-            return f"{persona.nombre} {persona.apellido}"
-        except Persona.DoesNotExist:
-            return "Sin información personal"
-    get_nombre_completo.short_description = 'Nombre Completo'
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
+  const validateForm = () => {
+    if (formData.password && formData.password !== formData.confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return false;
+    }
 
-@admin.register(Arrendador)
-class ArrendadorAdmin(admin.ModelAdmin):
-    list_display = ['get_nombre', 'get_email', 'get_tipo_usuario']
-    search_fields = ['id_arrendador__nombre', 'id_arrendador__apellido', 'id_arrendador__id_usuario__email']
+    if (!formData.nombre || !formData.apellido || !formData.dni) {
+      setError('Todos los campos son obligatorios');
+      return false;
+    }
 
-    def get_nombre(self, obj):
-        return f"{obj.id_arrendador.nombre} {obj.id_arrendador.apellido}"
-    get_nombre.short_description = 'Nombre Completo'
+    return true;
+  };
 
-    def get_email(self, obj):
-        return obj.id_arrendador.id_usuario.email
-    get_email.short_description = 'Correo Electrónico'
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
 
-    def get_tipo_usuario(self, obj):
-        return obj.id_arrendador.id_usuario.tipo_usuario
-    get_tipo_usuario.short_description = 'Tipo de Usuario'
+    if (!validateForm()) return;
 
+    setIsLoading(true);
+
+    try {
+      const token = TokenService.getAccessToken();
+      console.log('Current User:', currentUser);
+      console.log('Access Token:', token);
+
+      // Preparar datos de actualización base
+      const updateData = {
+        usuario: {
+          nombre_usuario: formData.nombre_usuario,
+          email: formData.email,
+          ...(formData.password && { password: formData.password })
+        },
+        persona: {
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          dni: formData.dni
+        }
+      };
+
+      // Agregar datos de arrendador si el usuario es arrendador
+      if (currentUser.tipo_usuario === 'arrendador') {
+        updateData.arrendador = {
+          nombre: formData.nombre_arrendador || formData.nombre
+        };
+      }
+
+      console.log('Update Data:', updateData);
+
+      const response = await axios.patch(
+        `/api/usuarios/${currentUser.id_usuario}/update_profile/`,
+        updateData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Update Response:', response.data);
+
+      // Actualizar el usuario actual con los datos de respuesta
+      const updatedUserData = {
+        ...currentUser,
+        ...response.data,
+        persona_info: response.data.persona_info || currentUser.persona_info,
+        arrendador_info: response.data.arrendador_info || currentUser.arrendador_info
+      };
+
+      setCurrentUser(updatedUserData);
+      setSuccessMessage('Perfil actualizado exitosamente');
+      setIsEditing(false);
+
+      // Restablecer los campos de contraseña
+      setFormData(prev => ({
+        ...prev,
+        password: '',
+        confirmPassword: ''
+      }));
+
+    } catch (error) {
+      console.error('Update Error:', error.response || error);
+
+      // Manejo detallado de errores
+      let errorMessage = 'Error al actualizar el perfil';
+
+      if (error.response) {
+        // Errores de validación del backend
+        if (error.response.data.usuario) {
+          errorMessage = Object.values(error.response.data.usuario)[0];
+        } else if (error.response.data.persona) {
+          errorMessage = Object.values(error.response.data.persona)[0];
+        } else if (error.response.data.arrendador) {
+          errorMessage = Object.values(error.response.data.arrendador)[0];
+        } else if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!currentUser) return null;
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold flex items-center">
+          <User className="mr-3" /> Mi Perfil
+        </h1>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="bg-primary-dark text-white px-4 py-2 rounded flex items-center hover:bg-primary"
+          >
+            <Edit className="mr-2" /> Editar
+          </button>
+        )}
+      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+          <AlertCircle className="inline mr-2" />
+          {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+          <Check className="inline mr-2" />
+          {successMessage}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-2">Nombre de Usuario</label>
+            <input
+              type="text"
+              name="nombre_usuario"
+              value={formData.nombre_usuario}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className={`w-full p-2 border rounded ${!isEditing ? 'bg-gray-100' : ''}`}
+            />
+          </div>
+          <div>
+            <label className="block mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className={`w-full p-2 border rounded ${!isEditing ? 'bg-gray-100' : ''}`}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-2">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className={`w-full p-2 border rounded ${!isEditing ? 'bg-gray-100' : ''}`}
+            />
+          </div>
+          <div>
+            <label className="block mb-2">Apellido</label>
+            <input
+              type="text"
+              name="apellido"
+              value={formData.apellido}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className={`w-full p-2 border rounded ${!isEditing ? 'bg-gray-100' : ''}`}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block mb-2">DNI</label>
+            <input
+              type="text"
+              name="dni"
+              value={formData.dni}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+              className={`w-full p-2 border rounded ${!isEditing ? 'bg-gray-100' : ''}`}
+            />
+          </div>
+        </div>
+
+        {isEditing && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-2">Nueva Contraseña</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                placeholder="Dejar en blanco si no desea cambiar"
+              />
+            </div>
+            <div>
+              <label className="block mb-2">Confirmar Contraseña</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                placeholder="Confirme la nueva contraseña"
+              />
+            </div>
+          </div>
+        )}
+
+        {isEditing && (
+          <div className="flex justify-end space-x-4 mt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setError(null);
+                setSuccessMessage(null);
+              }}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`flex items-center px-4 py-2 rounded ${isLoading
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-green-500 text-white hover:bg-green-600'
+                }`}
+            >
+              {isLoading ? (
+                <>
+                  <Loader className="animate-spin mr-2" /> Guardando...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2" /> Guardar Cambios
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </form>
+
+      {currentUser.tipo_usuario === 'arrendador' && (
+  <div>
+    <label className="block mb-2">ID de Arrendador</label>
+    <input
+      type="text"
+      name="id_arrendador"
+      value={currentUser.arrendador_info?.id_arrendador || ''}
+      disabled
+      className="w-full p-2 border rounded bg-gray-100 text-gray-500"
+      readOnly
+    />
+          <label className="block mt-4 mb-2">Nombre de Arrendador</label>
+          <input
+            type="text"
+            name="nombre_arrendador"
+            value={formData.nombre_arrendador}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            className={`w-full p-2 border rounded ${!isEditing ? 'bg-gray-100' : ''}`}
+          />
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default ProfilePage;

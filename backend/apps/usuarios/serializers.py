@@ -1,5 +1,5 @@
 # apps/usuarios/serializers.py
-from rest_framework import serializers
+from rest_framework import serializers, status, permissions
 from .models import Usuario, Persona, Arrendador, Cliente
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -14,7 +14,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
             'is_active': {'read_only': True},
-            'is_staff': {'read_only': True}
+            'is_staff': {'read_only': True},
+            'tipo_usuario': {'read_only': True}
         }
 
     def get_persona_info(self, obj):
@@ -54,10 +55,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
+        password = validated_data.pop('password', None)
         user = Usuario.objects.create_user(
+            nombre_usuario=validated_data.get('nombre_usuario'),
+            email=validated_data.get('email'),
             password=password,
-            **validated_data
+            tipo_usuario=validated_data.get('tipo_usuario', 'cliente')
         )
         return user
 

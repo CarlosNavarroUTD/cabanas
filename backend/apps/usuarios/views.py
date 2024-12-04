@@ -18,7 +18,9 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
 
     def get_permissions(self):
-        if self.action == 'create':
+        if self.action == 'register':
+            permission_classes = [permissions.AllowAny]
+        elif self.action == 'create':
             permission_classes = [RegistroPermission]
         elif self.action in ['update', 'partial_update', 'destroy']:
             permission_classes = [PropietarioOAdministrador]
@@ -68,6 +70,42 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         
         except Persona.DoesNotExist:
             return Response({"error": "No se encontró información de persona"}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['POST'], permission_classes=[permissions.AllowAny])
+    def register(self, request):
+        serializer = UsuarioSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            # Crear usuario
+            user = serializer.save(tipo_usuario='cliente')
+            
+            # Crear Persona si se proporcionan datos
+            persona_data = request.data.get('persona', {})
+            if persona_data:
+                persona_data['usuario'] = user
+                persona_serializer = PersonaSerializer(data=persona_data)
+                if persona_serializer.is_valid():
+                    persona_serializer.save()
+                    
+            if user.tipo_usuario == 'admin':
+                Arrendador.objects.create(
+                    usuario=user, 
+                    nombre=f"{user.persona.nombre} {user.persona.apellido}"
+                )
+            # Crear Cliente automáticamente para usuarios de tipo 'cliente'
+            if user.tipo_usuario == 'cliente':
+                Cliente.objects.create(usuario=user)
+
+            # Generar tokens
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'user': UsuarioSerializer(user).data,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PersonaViewSet(viewsets.ModelViewSet):
     queryset = Persona.objects.all()

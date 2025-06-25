@@ -1,0 +1,182 @@
+=================
+API Documentation
+=================
+
+## System Status
+GET /health/
+    - Health check endpoint
+    - Public endpoint
+    - Returns: "OK" if system is running
+
+
+##Token Managment
+POST /api/token/
+    - Get JWT tokens
+    - Public endpoint
+    - Required fields:
+        - username/email
+        - password
+    - Returns:
+        - access_token
+        - refresh_token
+
+POST /api/token/refresh/
+    - Refresh expired JWT token
+    - Required field: refresh_token
+    - Returns: new access_token
+
+
+
+## Authentication Endpoints
+POST /api/auth/registration/
+    - Register new user
+    - Public endpoint
+    - Required fields:
+        - username
+        - email
+        - password1
+        - password2
+    - Returns: User details
+
+POST /api/auth/login/
+    - Login user
+    - Public endpoint
+    - Required fields:
+        - username/email
+        - password
+    - Returns: Authentication tokens
+
+POST /api/auth/logout/
+    - Logout user
+    - Invalidates current token
+
+GET /api/auth/user/
+    - Get authenticated user details
+
+
+## Social Authentication Endpoints
+GET /api/auth/google/
+    - Initialize Google OAuth flow
+    - Public endpoint
+    - Redirects to Google login
+
+GET /api/auth/google/callback/
+    - Google OAuth callback URL
+    - Public endpoint
+    - Returns:
+        - access_token
+        - refresh_token
+        - user data
+
+
+
+## User Management
+GET /api/users/
+    - List all users
+    - Requires: Admin permission
+    - Returns: List of users
+
+POST /api/users/
+    - Create new user
+    - Public endpoint
+    - Required fields: email, nombre_usuario, password
+    - Returns: User details
+
+GET /api/users/me/
+    - Get current user profile
+    - Returns: Current user details
+
+PUT/PATCH /api/users/me/
+    - Update current user profile
+    - Fields: email, nombre_usuario, tipo_usuario
+
+DELETE /api/users/{id}/
+    - Delete user account
+    - Requires: Owner or Admin permission
+
+
+
+## Team Management
+GET /api/teams/
+    - List all teams
+    - Returns: List of teams
+
+POST /api/teams/
+    - Create a new team
+    - Required fields: name, description
+    - Creator automatically becomes admin
+
+GET /api/teams/{id}/
+    - Get team details
+    - Returns: Team information
+
+PUT/PATCH /api/teams/{id}/
+    - Update team details
+    - Requires: Team admin permission
+
+DELETE /api/teams/{id}/
+    - Delete team
+    - Requires: Team admin permission
+
+GET /api/teams/my_teams/
+    - List teams where user is member
+    - Returns: List of user's teams
+
+
+
+## Cabañas Management
+GET /api/cabanas/
+    - List all cottages
+    - Public endpoint
+    - Supports:
+        - Filtering: ubicacion__id, capacidad, estado
+        - Search: nombre, descripcion
+        - Ordering: costo_por_noche, creada_en
+    - Returns: List of cottages (simplified)
+
+POST /api/cabanas/
+    - Create new cottage
+    - Requires: Arrendador (Landlord) permission
+    - Required fields:
+        - nombre
+        - descripcion
+        - capacidad
+        - costo_por_noche
+        - ubicacion
+        - servicios
+    - Returns: Created cottage details
+
+GET /api/cabanas/{id}/
+    - Get detailed cottage information
+    - Public endpoint
+    - Returns: Complete cottage details
+
+PUT/PATCH /api/cabanas/{id}/
+    - Update cottage details
+    - Requires: Owner permission
+    - Fields: All cottage fields
+    - Returns: Updated cottage
+
+DELETE /api/cabanas/{id}/
+    - Delete cottage
+    - Requires: Owner permission
+
+## Reviews Management
+GET /api/cabanas/{id}/resenas/
+    - List all reviews for a cottage
+    - Public endpoint
+    - Returns: List of reviews
+
+POST /api/cabanas/{id}/agregar_resena/
+    - Add review to cottage
+    - Requires: Authentication
+    - Required fields:
+        - calificacion
+        - comentario
+    - Returns: Created review
+
+GET /api/resenas/
+    - List reviews
+    - For landlords: Shows reviews of their cottages
+    - For users: Shows their own reviews
+    - Supports ordering by: fecha_creacion, calificacion

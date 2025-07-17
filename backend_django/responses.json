@@ -1,0 +1,62 @@
+[
+    {
+        "tema": "PROMOCIÓN",
+        "respuestas": [
+            "nos encantará que formes parte de nuestra familia 💜🙌🏻",
+            "Te recomendamos acercarte directamente con el personal del club para poder hacer válida tu promoción. 🙌🏻💜"
+        ]
+    },
+    {
+        "tema": "SALUDOS",
+        "respuestas": [
+            "Hola, ¿Cómo podemos ayudarte?",
+            "Hola, te escuchamos, ¿Cómo podemos ayudarte?",
+            "¡Hola! ¿Deseas saber información sobre algún club?",
+            "¡Hola! Con gusto ¿En qué club estás interesada?",
+            "Hola, ¿En qué sucursal estás inscrito?",
+            "Para más información te leemos por mensaje directo con gusto para cualquier duda. m.me/planetfitness.mx"
+        ]
+    },
+    {
+        "tema": "GOOGLE",
+        "respuestas": [
+            "✮✮✮ Tomaremos en cuenta tu comentario, trabajamos para brindarte el servicio que mereces. 🙌🏻💜",
+            "✮✮✮✮✮ Agradecemos tus comentarios, trabajamos para brindarte el servicio que mereces. 🙌🏻💜",
+            "LINK MEMBRESIA - UBICACIÖN - CLUB - https://www.planetfitness.mx/gyms/",
+            "En el siguiente link podrás conocer todos los detalles de nuestras membresías, incluyendo beneficios, amenidades y precios, saludos 😁 https://www.planetfitness.mx/gyms/",
+            "En el siguiente link podrás conocer la ubicación de todos nuestros clubs disponibles, esperamos puedas encontrar uno cerca de ti, nos encantará que formes parte de nuestra familia. 💜🙌🏻 https://www.planetfitness.mx/gyms/",
+            "En el siguiente link podrás conocer todos los detalles del plantel, incluyendo precios y horarios, nos encantará que formes parte de nuestra familia 💜🙌🏻",
+            "En el siguiente link podrás conocer todos los detalles de nuestras sucursales incluyendo clases, horarios y amenidades, nos encantará que formes parte de nuestra familia 💜🙌🏻 https://www.planetfitness.mx/gyms/",
+            "En el siguiente link podrás conocer todos los detalles del club de tu preferencia incluyendo horarios. https://www.planetfitness.mx/gyms/ 💜🙌🏻",
+            "Disponemos de varias sucursales en Veracruz, en el siguiente link podrás conocer la ubicación de nuestros clubs disponibles, esperamos puedas encontrar uno cerca de ti, nos encantará que formes parte de nuestra familia 💜🙌🏻 https://www.planetfitness.mx/gyms/"
+        ]
+    },
+    {
+        "tema": "CANCELAR",
+        "respuestas": [
+            "Lamentamos saber que has decidido terminar tu membresía. Cualquier baja o cancelación comienza con una carta dirigida al Club en el que estás inscrito. Esta deberá incluir tus datos, como nombre completo, no. de socio, no. de celular y correo electrónico junto con una breve explicación de su cancelación. Esta se lleva al Club antes del 8 del mes para detener la facturación mensual y listo, estará hecho su proceso.",
+            "Estamos emocionados de abrir pronto, si aún deseas continuar con tu membresía. Cualquier baja o cancelación comienza con una carta dirigida al Club en el que estás inscrito. Esta deberá incluir tus datos, como nombre completo, no. de socio, no. de celular y correo electrónico junto con una breve explicación de su cancelación.",
+            "Al llevar la carta con la información a tu Club se te proporcionarán más detalles sobre la cancelación y tu contrato. 👍",
+            "¿Puedes decirme en qué sucursal estás inscrito? Para poder proporcionarte información de contacto directo.",
+            "Puedes comunicarte directamente con la sucursal para enviar esta carta. En el siguiente link podrás conocer todos nuestros clubs disponibles, ahí mismo podrás encontrar canales de información directos con tu club. 💜🙌🏻 https://www.planetfitness.mx/gyms/",
+            "En el siguiente link podrás encontrar información de contacto directo con el club para poder hacer el proceso de cancelación."
+        ]
+    },
+    {
+        "tema": "PROBLEMAS CON APP",
+        "respuestas": [
+            "Si sigues teniendo problemas te recomendamos acercarte con el personal del club, ellos podrán asesorarte.",
+            "Si sigues teniendo problemas te recomendamos acercarte con el personal del club, ellos podrán asesorarte con tu inscripción directamente en el mostrador. 💜🙌",
+            "Hola, si sigues teniendo problemas te recomendamos acercarte con el personal del club, ya que ellos cuentan con acceso al sistema y podrán ayudarte a realizar cualquier configuración necesaria. 💜🙌🏻",
+            "Hola, te recomendamos acercarte con el personal del club, ya que ellos cuentan con acceso al sistema y podrán ayudarte a revisar tu estado de cuenta y realizar cualquier configuración necesaria. 💜🙌🏻",
+            "Hola, te recomendamos acercarte con el personal del club, ya que ellos cuentan con acceso al sistema y podrán ayudarte a revisar el estado de tu cuenta y realizar cualquier configuración necesaria. 💜🙌🏻",
+            "Hola, es probable que estén las agendas llenas, te recomendamos ir directamente con el personal de tu club para encontrar un espacio disponible. 💜🙌"
+        ]
+    },
+    {
+        "tema": "DAY PASS",
+        "respuestas": [
+            "Hola, nosotros contamos con el 'Day Pass' 😁, con él podrás entrenar con nosotros por un día y de esa forma conocer mejor nuestro servicio. Este lo puedes obtener de manera gratuita (solo la primera vez) con el personal del Club de tu preferencia 😊. No olvides traer una identificación contigo."
+        ]
+    }
+]

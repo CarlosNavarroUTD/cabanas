@@ -1,0 +1,11 @@
+<!-- templates/usuarios/profile.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Perfil de {{ user.nombre_usuario }}</h2>
+<p>Email: {{ user.email }}</p>
+<p>Tipo de usuario: {{ user.tipo_usuario }}</p>
+{% if user.persona %}
+    <p>Nombre: {{ user.persona.nombre }} {{ user.persona.apellido }}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+app = "api-cabanas"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DJANGO_SETTINGS_MODULE = "myproject.settings.production"
+
+[experimental]
+  auto_rollback = true
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  processes = ["app"]

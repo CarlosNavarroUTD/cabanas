@@ -53,3 +53,12 @@ export const handleApiError = (error: AxiosError<ErrorResponseData>): ErrorRespo
     message: 'Network error occurred'
   };
 };
+
+export function toSnakeCase(obj: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`),
+      value
+    ])
+  );
+}

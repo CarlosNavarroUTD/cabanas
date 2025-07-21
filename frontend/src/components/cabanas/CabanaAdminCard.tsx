@@ -39,9 +39,13 @@ interface Cabana {
 
 interface CabanaAdminCardProps {
   cabana: Cabana;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onViewDetails: () => void;
   onEdit: (cabanaId: number) => void;
   onToggle: (cabanaId: number, currentStatus: string) => void;
 }
+
 
 const CabanaAdminCard: React.FC<CabanaAdminCardProps> = ({ 
   cabana, 

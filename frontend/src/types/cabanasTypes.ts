@@ -54,7 +54,7 @@ export interface Servicio {
     numero_habitaciones: number;
     numero_banos: number;
     permite_mascotas: boolean;
-    imagen_principal: string | null;
+    imagen_principal: string ;
     calificacion_promedio: number;
     total_resenas: number;
     team_name: string;
@@ -86,6 +86,7 @@ export interface Servicio {
     hora_checkin: string;
     hora_checkout: string;
     team_id?: number;
+    status?: string; 
   }
   
   export interface ImagenCabanaCreate {
@@ -119,4 +120,14 @@ export interface Servicio {
     ordering?: 'costo_por_noche' | '-costo_por_noche' | 'capacidad' | '-capacidad' | 'creada_en' | '-creada_en' | 'calificacion_promedio' | '-calificacion_promedio';
   }
   
+  export interface CabanasState {
+    currentCabana: Cabanas | null;
+    servicios: Servicio[];
+    error: string | null;
+    isLoading: boolean; // Added isLoading property
+    updateCabanaStatus: (cabanaId: number, status: string) => Promise<void>;
+
+  }
+  
+
   export type Cabanas = CabanaList;

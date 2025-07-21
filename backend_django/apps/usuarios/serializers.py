@@ -1,12 +1,39 @@
 # backend/apps/usuarios/serializers.py
 
 from rest_framework import serializers
-from .models import Usuario, Persona
+from .models import Usuario, Persona, Cliente, Arrendador
+
+
+class ClienteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cliente
+        fields = ['id_cliente']
+
+class ArrendadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Arrendador
+        fields = ['id_arrendador']
 
 class PersonaSerializer(serializers.ModelSerializer):
+    cliente = serializers.SerializerMethodField()
+    arrendador = serializers.SerializerMethodField()
+
     class Meta:
         model = Persona
-        fields = ['id_persona', 'nombre', 'apellido']
+        fields = ['id_persona', 'nombre', 'apellido', 'cliente', 'arrendador']
+
+    def get_cliente(self, obj):
+        try:
+            return ClienteSerializer(obj.cliente).data
+        except Cliente.DoesNotExist:
+            return None
+
+    def get_arrendador(self, obj):
+        try:
+            return ArrendadorSerializer(obj.arrendador).data
+        except Arrendador.DoesNotExist:
+            return None
+
 
 class UsuarioSerializer(serializers.ModelSerializer):
     persona = PersonaSerializer(required=False, allow_null=True)
@@ -48,6 +75,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         persona_data = validated_data.pop('persona', None)
         password = validated_data.pop('password', None)
+        rol = validated_data.get('rol', instance.rol)  # Usar nuevo rol si se actualiza
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -57,11 +85,21 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        if persona_data and hasattr(instance, 'persona'):
-            for attr, value in persona_data.items():
-                setattr(instance.persona, attr, value)
-            instance.persona.save()
-        elif persona_data:
-            Persona.objects.create(usuario=instance, **persona_data)
+        if persona_data:
+            persona = getattr(instance, 'persona', None)
+            if persona:
+                for attr, value in persona_data.items():
+                    setattr(persona, attr, value)
+                persona.save()
+            else:
+                persona = Persona.objects.create(usuario=instance, **persona_data)
+        
+            # Crear Cliente o Arrendador si no existen aún
+            if rol == 'cliente' and not hasattr(persona, 'cliente'):
+                from .models import Cliente
+                Cliente.objects.create(persona=persona)
+            elif rol == 'arrendador' and not hasattr(persona, 'arrendador'):
+                from .models import Arrendador
+                Arrendador.objects.create(persona=persona)
 
         return instance

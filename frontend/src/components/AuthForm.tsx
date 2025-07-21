@@ -95,7 +95,6 @@ export default function AuthForm({ type }: AuthFormProps) {
     // Simplemente llama a loginWithGoogle que redirige
     loginWithGoogle();
 
-    // No necesitamos setIsGoogleLoading(false) porque se redirige la página
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

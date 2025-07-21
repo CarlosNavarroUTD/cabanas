@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'apps.usuarios.apps.UsuariosConfig',
     #'apps.responses.apps.ResponsesConfig',
     'apps.teams.apps.TeamsConfig',
-    #'apps.tasks.apps.TasksConfig',
+    #'apps.reservas.apps.ReservasConfig',
     #'apps.tiendas.apps.TiendasConfig',
     #'apps.productos.apps.ProductosConfig',
     'apps.cabanas.apps.CabanasConfig',

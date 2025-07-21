@@ -5,10 +5,14 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { User as UserIcon, LogOut, Users, Settings } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
+
 export default function AdminNavbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const profileRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const handleLogout = () => {
     logout();
@@ -32,10 +36,10 @@ export default function AdminNavbar() {
       <div className="flex justify-between items-center">
         {/* Logo pequeño */}
         <div className="flex items-center">
-          <Image 
-            src="/logo.png" 
-            alt="logo" 
-            width={40} 
+          <Image
+            src="/logo.png"
+            alt="logo"
+            width={40}
             height={20}
             className="object-contain"
           />
@@ -58,10 +62,10 @@ export default function AdminNavbar() {
               >
                 {user?.avatar ? (
                   <div className="h-8 w-8 relative">
-                    <Image 
-                      src={user.avatar} 
-                      alt="User avatar" 
-                      fill 
+                    <Image
+                      src={user.avatar}
+                      alt="User avatar"
+                      fill
                       className="rounded-full object-cover"
                     />
                   </div>
@@ -74,42 +78,52 @@ export default function AdminNavbar() {
                   {user?.nombre_usuario || 'Usuario'}
                 </span>
               </button>
-              
+
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm text-gray-500">Conectado como</p>
                     <p className="text-sm font-medium text-gray-900">{user?.nombre_usuario}</p>
                   </div>
-                  
-                  <button 
-                    onClick={() => {/* Navegar a dashboard */}}
+
+                  <button
+                    onClick={() => {
+                      router.push('/'); // o la ruta correcta
+                      setIsProfileOpen(false);
+                    }}
                     className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"
                   >
                     <Settings className="h-4 w-4 mr-2" />
                     Dashboard
                   </button>
-                  
-                  <button 
-                    onClick={() => {/* Navegar a perfil */}}
+
+                  <button
+                    onClick={() => {
+                      router.push('/app/perfil'); // o la ruta correcta
+                      setIsProfileOpen(false);
+                    }}
                     className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"
                   >
                     <UserIcon className="h-4 w-4 mr-2" />
                     Mi Perfil
                   </button>
-                  
-                  <button 
-                    onClick={() => {/* Navegar a equipos */}}
+
+                  <button
+                    onClick={() => {
+                      router.push('/app/equipos'); // o la ruta correcta
+                      setIsProfileOpen(false);
+                    }}
                     className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"
                   >
                     <Users className="h-4 w-4 mr-2" />
                     Equipos
                   </button>
-                  
+
+
                   <hr className="my-2" />
-                  
-                  <button 
-                    onClick={handleLogout} 
+
+                  <button
+                    onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors flex items-center"
                   >
                     <LogOut className="h-4 w-4 mr-2" />

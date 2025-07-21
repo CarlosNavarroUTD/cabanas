@@ -37,7 +37,11 @@ interface CabanasState {
   
   // Filtros
   filters: CabanaFilters;
-  
+
+  isLoading: boolean;
+
+  updateCabanaStatus: (cabanaId: number, status: string) => Promise<void>;
+
   // Acciones para servicios
   fetchServicios: () => Promise<void>;
   
@@ -72,6 +76,10 @@ interface CabanasState {
   clearError: () => void;
   clearCurrentCabana: () => void;
   reset: () => void;
+
+  // Updated setCabanas to accept both arrays and updater functions
+  setCabanas: (cabanas: CabanaList[] | ((prev: CabanaList[]) => CabanaList[])) => void;
+  setError: (error: string | null) => void;
 }
 
 const initialState = {
@@ -89,12 +97,45 @@ const initialState = {
   loadingResenas: false,
   error: null,
   filters: {},
+  isLoading: false,
 };
 
 export const useCabanas = create<CabanasState>()(
   devtools(
     (set, get) => ({
       ...initialState,
+      
+      // Updated setCabanas implementation
+      setCabanas: (cabanas) => {
+        if (typeof cabanas === 'function') {
+          const currentCabanas = get().cabanas;
+          const updatedCabanas = cabanas(currentCabanas);
+          set({ cabanas: updatedCabanas });
+        } else {
+          set({ cabanas });
+        }
+      },
+      
+      setError: (error) => set({ error }),
+
+      updateCabanaStatus: async (cabanaId: number, status: string) => {
+        try {
+          set({ loadingUpdate: true, error: null });
+          await cabanasService.updateCabana(cabanaId, { status });
+          
+          const { cabanas, myCabanas } = get();
+          set({ 
+            cabanas: cabanas.map(c => c.id === cabanaId ? { ...c, status } : c),
+            myCabanas: myCabanas.map(c => c.id === cabanaId ? { ...c, status } : c),
+            loadingUpdate: false 
+          });
+        } catch (error) {
+          set({ 
+            error: error instanceof Error ? error.message : 'Error al actualizar estado de cabaña',
+            loadingUpdate: false 
+          });
+        }
+      },
 
       // Servicios
       fetchServicios: async () => {
@@ -113,24 +154,33 @@ export const useCabanas = create<CabanasState>()(
         }
       },
 
-      // Cabañas
-      fetchCabanas: async (filters?: CabanaFilters) => {
-        try {
-          set({ loading: true, error: null });
-          const cabanas = await cabanasService.getCabanas(filters);
-          set({ cabanas, loading: false });
-          if (filters && JSON.stringify(filters) !== JSON.stringify(get().filters)) {
-            set({ filters });
-          }
-          
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Error al obtener cabañas',
-            loading: false 
-          });
+     // Cabañas - CORREGIDO para manejar el filtro de equipo correctamente
+     fetchCabanas: async (filters?: CabanaFilters) => {
+      try {
+        set({ loading: true, isLoading: true, error: null });
+        
+        const safeFilters: CabanaFilters = {
+          ...filters,
+          ordering: (filters?.ordering || '-creada_en') as CabanaFilters['ordering'],
+        };
+        
+        // Asegurarse de que el filtro de equipo se pase correctamente
+        const cabanas = await cabanasService.getCabanas(safeFilters);
+        set({ cabanas, loading: false, isLoading: false }); 
+        
+        // Solo actualizar filtros si cambiaron
+        if (filters && JSON.stringify(filters) !== JSON.stringify(get().filters)) {
+          set({ filters: safeFilters });
         }
-      },
-
+      } catch (error) {
+        set({ 
+          error: error instanceof Error ? error.message : 'Error al obtener cabañas',
+          loading: false,
+          isLoading: false 
+        });
+      }
+    },
+      
       fetchCabanaDetail: async (id: number) => {
         try {
           set({ loading: true, error: null });

@@ -1,11 +1,11 @@
 // src/hooks/useAuth.ts
 import { create } from 'zustand';
 import { authService } from '@/services/auth.service';
-import { 
-  User, 
-  RegisterData, 
-  LoginResponse, 
-  RegisterResponse 
+import {
+  User,
+  RegisterData,
+  LoginResponse,
+  RegisterResponse
 } from '@/types/usersTypes';
 
 interface AuthStore {
@@ -35,19 +35,37 @@ export const useAuth = create<AuthStore>((set) => ({
         return;
       }
 
-      // Verificar el token y obtener datos del usuario
+      // ✅ Primero intenta obtener usuario del localStorage
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          set({
+            user: userData,
+            isAuthenticated: true,
+            isLoading: false
+          });
+          return; // ✅ Salir temprano, no necesitas llamada al backend
+        } catch (parseError) {
+          console.error('Error parsing saved user:', parseError);
+          localStorage.removeItem('user');
+        }
+      }
+
+      // Solo como fallback si no hay usuario guardado
       const userData = await authService.getCurrentUser();
-      set({ 
+      localStorage.setItem('user', JSON.stringify(userData)); // ✅ Guardar para próxima vez
+      set({
         user: userData,
         isAuthenticated: true,
         isLoading: false
       });
     } catch (error) {
       console.error('Error checking auth:', error);
-      // Si hay un error, limpiamos el token y el estado
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
-      set({ 
+      localStorage.removeItem('user'); // ✅ Limpiar usuario también
+      set({
         user: null,
         isAuthenticated: false,
         isLoading: false
@@ -59,50 +77,52 @@ export const useAuth = create<AuthStore>((set) => ({
     try {
       set({ isLoading: true });
       const response = await authService.login({ email, password });
-  
+
       localStorage.setItem('token', response.access);
       localStorage.setItem('refreshToken', response.refresh);
-  
+
+      // Guardar toda la información del usuario (como string JSON)
+      localStorage.setItem('user', JSON.stringify(response.user));
+
       // ✅ Guarda el usuario directamente desde la respuesta
       set({
         user: response.user,
         isAuthenticated: true,
         isLoading: false
       });
-  
+
       return response; // ✅ Retorna también el usuario
     } catch (error) {
       set({ isLoading: false });
       throw error;
     }
   },
-  
+
 
   // Función simplificada - solo redirige a Google
   loginWithGoogle: () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const googleAuthUrl = `${apiUrl}/auth/google/`;
-    
+
     console.log('🚀 Redirigiendo a Google Auth...');
     console.log('URL:', googleAuthUrl);
-    
+
     // Redirigir directamente a Google OAuth
     window.location.href = googleAuthUrl;
   },
 
   // Nueva función para establecer tokens y usuario directamente
   setTokensAndUser: (tokens: { access: string; refresh: string }, user: User) => {
-    console.log('🔐 Estableciendo tokens y usuario:', { 
-      access: tokens.access.substring(0, 20) + '...', 
-      user: user.email 
+    console.log('🔐 Estableciendo tokens y usuario:', {
+      access: tokens.access.substring(0, 20) + '...',
+      user: user.email
     });
-    
-    // Guardar tokens en localStorage
+
     localStorage.setItem('token', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
-    
-    // Actualizar estado
-    set({ 
+    localStorage.setItem('user', JSON.stringify(user));
+
+    set({
       user: user,
       isAuthenticated: true,
       isLoading: false
@@ -113,11 +133,11 @@ export const useAuth = create<AuthStore>((set) => ({
   handleGoogleCallback: async (code: string) => {
     try {
       set({ isLoading: true });
-      
+
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      
+
       console.log('🔍 Procesando callback de Google con código:', code.substring(0, 20) + '...');
-      
+
       // Hacer petición al callback endpoint
       const response = await fetch(`${apiUrl}/auth/google/callback/?code=${code}`, {
         method: 'GET',
@@ -131,7 +151,7 @@ export const useAuth = create<AuthStore>((set) => ({
 
       if (data.success) {
         console.log('🎉 Autenticación exitosa');
-        
+
         // Guardar tokens
         localStorage.setItem('token', data.access);
         if (data.refresh) {
@@ -139,7 +159,7 @@ export const useAuth = create<AuthStore>((set) => ({
         }
 
         // Establecer usuario
-        set({ 
+        set({
           user: data.user,
           isAuthenticated: true,
           isLoading: false
@@ -154,7 +174,7 @@ export const useAuth = create<AuthStore>((set) => ({
       throw error;
     }
   },
-        
+
   register: async (data: RegisterData) => {
     try {
       const response = await authService.register(data);
@@ -167,8 +187,8 @@ export const useAuth = create<AuthStore>((set) => ({
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
-    set({ 
-      user: null, 
+    set({
+      user: null,
       isAuthenticated: false,
       isLoading: false
     });

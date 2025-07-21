@@ -1,7 +1,8 @@
+// src/app/app/layout.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useTeamContext } from '@/contexts/TeamContext';
+import { TeamProvider, useTeamContext } from '@/contexts/TeamContext';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminSidebar from '@/components/AdminSidebar';
 
@@ -10,8 +11,16 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  return (
+    <TeamProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </TeamProvider>
+  );
+}
+
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { currentTeam, teams, isLoading, setCurrentTeam, refreshTeams } = useTeamContext();
+  const { currentTeam, teams, isLoading, setCurrentTeam } = useTeamContext();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -27,7 +36,6 @@ export default function DashboardLayout({
     }
   };
 
-  // Mostrar loading mientras se cargan los equipos
   if (isLoading && teams.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -39,7 +47,6 @@ export default function DashboardLayout({
     );
   }
 
-  // Mostrar mensaje si no hay equipos
   if (!isLoading && teams.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -65,21 +72,14 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Barra superior */}
       <AdminNavbar />
-      
-      {/* Sidebar */}
       <AdminSidebar
         currentTeamId={currentTeam?.id}
         onTeamChange={handleTeamChange}
         onLogout={handleLogout}
       />
-      
-      {/* Contenido principal */}
       <main className="ml-16 pt-16 min-h-screen">
-        <div className="p-6">
-          {children}
-        </div>
+        <div className="p-6">{children}</div>
       </main>
     </div>
   );

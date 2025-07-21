@@ -7,7 +7,6 @@ interface CabanaHeaderProps {
 }
 
 const CabanaHeader: React.FC<CabanaHeaderProps> = ({ 
-  showFilters, 
   onToggleFilters 
 }) => {
   return (

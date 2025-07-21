@@ -34,6 +34,10 @@ class PropietarioOAdministrador(permissions.BasePermission):
         if request.user.tipo_usuario == 'admin':
             return True
             
+        # Verificar si es el propietario de la reserva
+        if hasattr(obj, 'cliente') and hasattr(obj.cliente, 'persona'):
+            return obj.cliente.persona.usuario == request.user
+            
         # Para otros usuarios, verificar si son propietarios del recurso
         if hasattr(obj, 'id_usuario'):
             return obj.id_usuario == request.user
@@ -134,5 +138,4 @@ class RegistroPermission(permissions.BasePermission):
             return True
         # Para otras operaciones, requerir autenticación
         return request.user and request.user.is_authenticated
-
 

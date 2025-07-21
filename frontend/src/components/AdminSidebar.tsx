@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTeams } from '@/hooks/useTeams';
 import {
-  Home,
   Calendar,
   Users,
   MessageSquare,
@@ -14,13 +13,6 @@ import {
   Building
 } from 'lucide-react';
 
-interface Team {
-  id: number;
-  name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-}
 
 interface AdminSidebarProps {
   currentTeamId?: number;

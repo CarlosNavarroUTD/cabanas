@@ -1,6 +1,9 @@
+//src/app/(public)/cabanas/page.tsx
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Importar useRouter para Next.js
 import { useCabanas } from '@/hooks/useCabanas';
 import { CabanaFilters } from '@/types/cabanasTypes';
 
@@ -15,6 +18,8 @@ import CabanaLoading from '@/components/cabanas/CabanasLoading';
 import CabanaError from '@/components/cabanas/CabanasError';
 
 const CabanasPage = () => {
+  const router = useRouter(); // Hook para navegación en Next.js
+  
   const {
     cabanas,
     loading,
@@ -59,8 +64,8 @@ const CabanasPage = () => {
   };
 
   const handleViewDetails = (cabanaId: number) => {
-    // Implementar navegación a detalles
-    console.log('Ver detalles de cabaña:', cabanaId);
+    // Navegar a la página de detalles de la cabaña
+    router.push(`/cabanas/${cabanaId}`);
   };
 
   if (loading && cabanas.length === 0) {

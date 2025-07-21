@@ -1,3 +1,5 @@
+//src/components/cabanas/CabanaCard.tsx
+
 import React from 'react';
 import { 
   Users, 

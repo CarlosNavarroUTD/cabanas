@@ -29,7 +29,8 @@ urlpatterns = [
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api/teams/', include('apps.teams.urls')), 
     #path('api/tasks/', include('apps.tasks.urls')),
-    path('api/cabanas/', include('apps.cabanas.urls')),  # Cambiar aquí
+    path('api/cabanas/', include('apps.cabanas.urls')), 
+    path('api/reservas/', include('apps.reservas.urls')), 
     
     path('health/', HealthCheckView.as_view(), name='health_check'),
 ]

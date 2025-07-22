@@ -1,53 +1,42 @@
+// app/components/Footer.tsx o src/components/Footer.tsx
+import Image from "next/image";
 import Link from "next/link";
 
+const Footer = () => {
+  return (
+    <footer className="w-full bg-gradient-to-br from-olive-700 to-olive-900 text-beige-light py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-10 flex-wrap">
+          
+          {/* Lado izquierdo */}
+          <div className="flex flex-col gap-4 items-start">
+            <Image src="/logo.png" alt="Logo" width={120} height={60} />
+            <p className="text-beige-light text-sm md:text-base">
+              Nuestra misión es ofrecer experiencias inolvidables <br />
+              en cabañas rodeadas de naturaleza.
+            </p>
+          </div>
 
-export default function Footer() {
-        return (
-        <footer className="bg-gray-800">
-            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                <h3 className="text-white text-lg font-semibold mb-4">Sobre Nosotros</h3>
-                <p className="text-gray-300">
-                    Breve descripción de la empresa o proyecto.
-                </p>
-                </div>
-                <div>
-                <h3 className="text-white text-lg font-semibold mb-4">Enlaces Rápidos</h3>
-                <ul className="space-y-2">
-                    <li>
-                    <Link href="/" className="text-gray-300 hover:text-white">
-                        Inicio
-                    </Link>
-                    </li>
-                    <li>
-                    <Link href="/about" className="text-gray-300 hover:text-white">
-                        Nosotros
-                    </Link>
-                    </li>
-                    <li>
-                    <Link href="/contact" className="text-gray-300 hover:text-white">
-                        Contacto
-                    </Link>
-                    </li>
-                </ul>
-                </div>
-                <div>
-                <h3 className="text-white text-lg font-semibold mb-4">Contacto</h3>
-                <ul className="space-y-2 text-gray-300">
-                    <li>Email: info@ejemplo.com</li>
-                    <li>Teléfono: (123) 456-7890</li>
-                    <li>Dirección: Calle Ejemplo #123</li>
-                </ul>
-                </div>
-            </div>
-            <div className="mt-8 pt-8 border-t border-gray-700">
-                <p className="text-center text-gray-300">
-                © {new Date().getFullYear()} Tu Empresa. Todos los derechos reservados.
-                </p>
-            </div>
-            </div>
-        </footer>
-        );
-    }
-    
+          {/* Lado derecho */}
+          <div className="flex flex-col gap-4 items-start">
+            <h3 className="text-lg font-semibold text-beige-light">Información</h3>
+            <p className="text-beige-light text-sm">Sierra Madre, Zona EcoTurística, México</p>
+            <nav className="flex flex-wrap gap-4 mt-4 font-medium">
+              <Link href="/" className="hover:text-white transition">Inicio</Link>
+              <Link href="/cabanas" className="hover:text-white transition">Cabañas</Link>
+              <Link href="/nosotros" className="hover:text-white transition">Sobre Nosotros</Link>
+            </nav>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-6 border-t border-beige-light/30 text-center">
+          <p className="text-sm text-beige-light">
+            © {new Date().getFullYear()} Cabañas Naturaleza. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

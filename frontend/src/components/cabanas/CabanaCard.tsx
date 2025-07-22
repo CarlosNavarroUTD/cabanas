@@ -293,7 +293,7 @@ const CabanaCard: React.FC<CabanaCardProps> = ({
           /* Public view - View details button */
           <button 
             onClick={() => onViewDetails?.(cabana.id)}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+            className="w-full bg-gradient-to-r from-[#2E3B1F] via-[#556B2F] via-[#8B5E3C] to-[#4E3620] text-white py-2 px-4 rounded-lg hover:from-olive-700 hover:to-olive-900 transition-colors"
           >
             Ver detalles
           </button>

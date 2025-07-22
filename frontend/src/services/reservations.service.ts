@@ -1,9 +1,14 @@
 // src/services/reservationService.ts
 import api from '@/lib/api';
-import { ReservationFormData, ReservationResponse } from '@/types/reservationTypes';
+import { ReservationFormData, ReservationResponse, TeamReservationResponse } from '@/types/reservationTypes';
 import { AxiosError } from 'axios';
 import { toSnakeCase } from '@/lib/utils';
 
+// Define proper error response types
+interface ApiErrorResponse {
+  detail?: string;
+  message?: string;
+}
 
 export class ReservationService {
   static async createReservation(data: ReservationFormData): Promise<ReservationResponse> {
@@ -11,16 +16,16 @@ export class ReservationService {
       const response = await api.post<ReservationResponse>('/reservas/reservas/', toSnakeCase(data));
       return response.data;
     } catch (error: unknown) {
-        const axiosError = error as AxiosError<any>;
-        if (axiosError.response?.data?.detail) {
-          throw new Error(axiosError.response.data.detail);
-        }
-        if (axiosError.response?.data?.message) {
-          throw new Error(axiosError.response.data.message);
-        }
-        throw new Error('Error al crear la reservación');
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      if (axiosError.response?.data?.detail) {
+        throw new Error(axiosError.response.data.detail);
       }
-    }     
+      if (axiosError.response?.data?.message) {
+        throw new Error(axiosError.response.data.message);
+      }
+      throw new Error('Error al crear la reservación');
+    }
+  }     
 
   static async checkAvailability(
     cabanaId: number,
@@ -36,7 +41,7 @@ export class ReservationService {
         },
       });
       return response.data;
-    } catch (error) {
+    } catch {
       return { available: false, message: 'Error al verificar disponibilidad' };
     }
   }
@@ -45,7 +50,7 @@ export class ReservationService {
     try {
       const response = await api.get<ReservationResponse[]>('/reservas/');
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('Error al obtener reservaciones');
     }
   }
@@ -53,20 +58,36 @@ export class ReservationService {
   static async cancelReservation(id: number): Promise<void> {
     try {
       await api.patch(`/reservas/${id}/`, { estado: 'cancelada' });
-    } catch (error) {
+    } catch {
       throw new Error('Error al cancelar la reservación');
     }
   }
 
-  static async initiatePayment(reservationId: number,successUrl: string,cancelUrl: string): Promise<{ checkout_url: string }> {
+  static async getReservationsByTeam(teamId: number): Promise<TeamReservationResponse[]> {
+    try {
+      const response = await api.get<TeamReservationResponse[]>('/reservas/reservas/por-equipo/', {
+        params: { team_id: teamId },
+      });
+      return response.data;
+    } catch {
+      throw new Error('Error al obtener reservaciones del equipo');
+    }
+  }
+
+
+  static async initiatePayment(
+    reservationId: number,
+    successUrl: string,
+    cancelUrl: string
+  ): Promise<{ checkout_url: string }> {
     try {
       const response = await api.post(`/reservas/reservas/${reservationId}/pagar/`, {
         success_url: successUrl,
         cancel_url: cancelUrl
       });
       return response.data;
-    } catch (error) {
-      const axiosError = error as AxiosError<any>;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ApiErrorResponse>;
       if (axiosError.response?.data?.detail) {
         throw new Error(axiosError.response.data.detail);
       }
@@ -78,7 +99,7 @@ export class ReservationService {
     try {
       const response = await api.get<ReservationResponse>(`/reservas/reservas/${id}/`);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('Error al obtener la reservación');
     }
   }

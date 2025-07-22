@@ -39,7 +39,7 @@ interface CabanasState {
   filters: CabanaFilters;
 
   isLoading: boolean;
-
+  serviciosLoaded: boolean,
   updateCabanaStatus: (cabanaId: number, status: string) => Promise<void>;
 
   // Acciones para servicios
@@ -98,6 +98,7 @@ const initialState = {
   error: null,
   filters: {},
   isLoading: false,
+  serviciosLoaded: false,
 };
 
 export const useCabanas = create<CabanasState>()(
@@ -140,16 +141,22 @@ export const useCabanas = create<CabanasState>()(
       // Servicios
       fetchServicios: async () => {
         const state = get();
-        if (state.servicios.length > 0 || state.loading) return;
+        // Usar el flag en lugar de verificar length
+        if (state.serviciosLoaded) return;
         
         try {
           set({ loading: true, error: null });
           const servicios = await cabanasService.getServicios();
-          set({ servicios, loading: false });
+          set({ 
+            servicios, 
+            loading: false,
+            serviciosLoaded: true // ← MARCAR COMO CARGADO
+          });
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : 'Error al obtener servicios',
-            loading: false 
+            loading: false,
+            serviciosLoaded: false // ← MANTENER COMO NO CARGADO EN CASO DE ERROR
           });
         }
       },

@@ -37,6 +37,15 @@ export interface ReservationFormProps {
   onSuccess?: (reservation: ReservationResponse) => void;
 }
 
+export interface TeamReservationResponse {
+  id: number;
+  cliente: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  precio_final: string;
+  estado: string;
+}
+
 // Tipos para la información del usuario desde localStorage
 export interface UserInfo {
   id_usuario: number;

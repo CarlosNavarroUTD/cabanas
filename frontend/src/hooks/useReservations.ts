@@ -3,6 +3,8 @@ import { useState, useMemo } from 'react';
 import { ReservationData, StayCalculation } from '@/types/reservationTypes';
 import { CabanaDetail } from '@/types/cabanasTypes';
 import { ReservationService } from '@/services/reservations.service';
+import { ReservationResponse } from '@/types/reservationTypes';
+
 
 // Función helper para obtener información del usuario
 const getUserFromStorage = () => {
@@ -16,6 +18,7 @@ const getUserFromStorage = () => {
     return null;
   }
 };
+
 
 export const useReservationForm = (cabana: CabanaDetail) => {
   const [formData, setFormData] = useState<ReservationData>({
@@ -121,7 +124,7 @@ export const useReservationForm = (cabana: CabanaDetail) => {
       }
 
       return result.available;
-    } catch (err) {
+    } catch {
       setError('Error al verificar disponibilidad');
       return false;
     } finally {
@@ -129,11 +132,11 @@ export const useReservationForm = (cabana: CabanaDetail) => {
     }
   };
 
-  // Dentro de tu hook useReservationForm
+  // Dentro de hook useReservationForm
   const submitReservation = async (urlOptions?: {
     generateSuccessUrl: (reservationId: number) => string;
     cancelUrl: string;
-  }): Promise<any> => {
+  }): Promise<ReservationResponse> => {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -160,18 +163,18 @@ export const useReservationForm = (cabana: CabanaDetail) => {
 
       const reservation = await ReservationService.createReservation(reservationData);
 
-      // 3. Iniciar proceso de pago con URLs
       if (urlOptions) {
         const successUrl = urlOptions.generateSuccessUrl(reservation.id);
-        return await initiatePaymentProcess(reservation.id, successUrl, urlOptions.cancelUrl);
+        await initiatePaymentProcess(reservation.id, successUrl, urlOptions.cancelUrl);
       } else {
-        // Generar URLs por defecto si no se proporcionan
         const baseUrl = window.location.origin;
         const successUrl = `${baseUrl}/app/reserva/${reservation.id}`;
         const cancelUrl = window.location.href;
-
-        return await initiatePaymentProcess(reservation.id, successUrl, cancelUrl);
+        await initiatePaymentProcess(reservation.id, successUrl, cancelUrl);
       }
+
+      return reservation; // ✅ retornas la reserva, no el resultado del pago
+
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al procesar la reservación';

@@ -27,4 +27,4 @@ COPY . /code
 EXPOSE 8000
 
 # Comando por defecto
-CMD ["gunicorn", "--bind", ":8000", "--workers", "2", "myproject.wsgi:application"]
+CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "myproject.wsgi:application"]

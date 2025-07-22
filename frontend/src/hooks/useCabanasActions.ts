@@ -1,54 +1,30 @@
 // src/hooks/useCabanasActions.ts
-import { useCallback } from 'react';
 import { useCabanas } from './useCabanas';
 
 export const useCabanasActions = () => {
-  const {
-    fetchCabanas,
-    fetchCabanaDetail,
-    fetchMyCabanas,
-    createCabana,
-    updateCabana,
-    deleteCabana,
-    fetchServicios,
-    checkDisponibilidad,
-    fetchImagenes,
-    agregarImagen,
-    updateImagen,
-    deleteImagen,
-    fetchResenas,
-    agregarResena,
-    updateResena,
-    deleteResena,
-    setFilters,
-    clearFilters,
-    clearError,
-    clearCurrentCabana,
-    reset,
-  } = useCabanas();
-
-  // Memoizar funciones con useCallback
-  return {
-    fetchCabanas: useCallback(fetchCabanas, []),
-    fetchCabanaDetail: useCallback(fetchCabanaDetail, []),
-    fetchMyCabanas: useCallback(fetchMyCabanas, []),
-    createCabana: useCallback(createCabana, []),
-    updateCabana: useCallback(updateCabana, []),
-    deleteCabana: useCallback(deleteCabana, []),
-    fetchServicios: useCallback(fetchServicios, []),
-    checkDisponibilidad: useCallback(checkDisponibilidad, []),
-    fetchImagenes: useCallback(fetchImagenes, []),
-    agregarImagen: useCallback(agregarImagen, []),
-    updateImagen: useCallback(updateImagen, []),
-    deleteImagen: useCallback(deleteImagen, []),
-    fetchResenas: useCallback(fetchResenas, []),
-    agregarResena: useCallback(agregarResena, []),
-    updateResena: useCallback(updateResena, []),
-    deleteResena: useCallback(deleteResena, []),
-    setFilters: useCallback(setFilters, []),
-    clearFilters: useCallback(clearFilters, []),
-    clearError: useCallback(clearError, []),
-    clearCurrentCabana: useCallback(clearCurrentCabana, []),
-    reset: useCallback(reset, []),
-  };
+  // Simplemente devolver las funciones directamente
+  // Las funciones de Zustand ya están optimizadas internamente
+  return useCabanas((state) => ({
+    fetchCabanas: state.fetchCabanas,
+    fetchCabanaDetail: state.fetchCabanaDetail,
+    fetchMyCabanas: state.fetchMyCabanas,
+    createCabana: state.createCabana,
+    updateCabana: state.updateCabana,
+    deleteCabana: state.deleteCabana,
+    fetchServicios: state.fetchServicios,
+    checkDisponibilidad: state.checkDisponibilidad,
+    fetchImagenes: state.fetchImagenes,
+    agregarImagen: state.agregarImagen,
+    updateImagen: state.updateImagen,
+    deleteImagen: state.deleteImagen,
+    fetchResenas: state.fetchResenas,
+    agregarResena: state.agregarResena,
+    updateResena: state.updateResena,
+    deleteResena: state.deleteResena,
+    setFilters: state.setFilters,
+    clearFilters: state.clearFilters,
+    clearError: state.clearError,
+    clearCurrentCabana: state.clearCurrentCabana,
+    reset: state.reset,
+  }));
 };

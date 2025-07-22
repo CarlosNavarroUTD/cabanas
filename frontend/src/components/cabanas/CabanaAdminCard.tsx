@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Users, 
   Star, 
@@ -42,16 +43,19 @@ interface CabanaAdminCardProps {
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onViewDetails: () => void;
-  onEdit: (cabanaId: number) => void;
   onToggle: (cabanaId: number, currentStatus: string) => void;
 }
 
-
 const CabanaAdminCard: React.FC<CabanaAdminCardProps> = ({ 
   cabana, 
-  onEdit, 
   onToggle 
 }) => {
+  const router = useRouter();
+
+  const handleEdit = () => {
+    router.push(`/app/cabanas/${cabana.id}`);
+  };
+
   const getServiceIcon = (serviceName: string) => {
     const name = serviceName.toLowerCase();
     if (name.includes('wifi') || name.includes('internet')) return <Wifi className="w-4 h-4" />;
@@ -121,7 +125,7 @@ const CabanaAdminCard: React.FC<CabanaAdminCardProps> = ({
         {/* Admin actions overlay */}
         <div className="absolute top-3 right-3 flex space-x-2">
           <button
-            onClick={() => onEdit(cabana.id)}
+            onClick={handleEdit}
             className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
             title="Editar cabaña"
           >
@@ -227,11 +231,11 @@ const CabanaAdminCard: React.FC<CabanaAdminCardProps> = ({
         {/* Admin action buttons */}
         <div className="flex space-x-2">
           <button 
-            onClick={() => onEdit(cabana.id)}
+            onClick={handleEdit}
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
           >
             <Edit className="w-4 h-4 mr-2" />
-            Editar
+            Administrar
           </button>
           <button 
             onClick={() => onToggle(cabana.id, cabana.estado)}

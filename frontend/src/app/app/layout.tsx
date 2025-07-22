@@ -1,10 +1,14 @@
 // src/app/app/layout.tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { TeamProvider, useTeamContext } from '@/contexts/TeamContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useTeams } from '@/hooks/useTeams';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminSidebar from '@/components/AdminSidebar';
+import AddTeamForm from '@/components/teams/AddTeamForm';
 
 export default function DashboardLayout({
   children,
@@ -20,50 +24,101 @@ export default function DashboardLayout({
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { currentTeam, teams, isLoading, setCurrentTeam } = useTeamContext();
+  const pathname = usePathname();
+  const { currentTeam, teams, isLoading: isTeamsLoading, setCurrentTeam } = useTeamContext();
+  const { user, isAuthenticated, isLoading: isAuthLoading, checkAuth } = useAuth();
+  const { createTeam, isLoading: isCreatingTeam } = useTeams();
+
+  // 🔒 Verifica autenticación y permisos
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (isAuthLoading) return;
+
+    // No autenticado
+    if (!isAuthenticated) {
+      router.replace('/login');
+      return;
+    }
+
+    // Validar rol y permisos
+    const rol = user?.rol;
+    const isCliente = rol === 'cliente';
+
+    if (isCliente ) {
+      router.replace('/perfil');
+    }
+
+    // Arrendador tiene acceso completo
+  }, [isAuthenticated, isAuthLoading, pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('currentTeamId');
+    localStorage.removeItem('user');
     router.push('/login');
   };
 
   const handleTeamChange = (teamId: number) => {
-    const selectedTeam = teams.find(team => team.id === teamId);
+    const selectedTeam = teams.find((team) => team.id === teamId);
     if (selectedTeam) {
       setCurrentTeam(selectedTeam);
       console.log('Equipo cambiado a:', selectedTeam.name);
     }
   };
 
-  if (isLoading && teams.length === 0) {
+  const handleCreateTeam = async (teamData: { name: string; description: string }) => {
+    try {
+      await createTeam(teamData);
+      // El contexto se actualizará automáticamente con el nuevo equipo
+      // y se mostrará el dashboard normal
+    } catch (error) {
+      console.error('Error al crear equipo:', error);
+      // El error ya se maneja en el componente AddTeamForm
+    }
+  };
+
+  if (isAuthLoading || (isTeamsLoading && teams.length === 0)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando equipos...</p>
+          <p className="text-gray-600">Cargando...</p>
         </div>
       </div>
     );
   }
 
-  if (!isLoading && teams.length === 0) {
+  if (!isTeamsLoading && teams.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="bg-white rounded-lg shadow-md p-8 max-w-md">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              No hay equipos disponibles
+              ¡Bienvenido! 👋
             </h2>
             <p className="text-gray-600 mb-6">
-              Necesitas ser parte de un equipo para acceder al dashboard.
+              Para comenzar, necesitas crear tu primer equipo de trabajo.
             </p>
-            <button
-              onClick={() => router.push('/teams/create')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Crear un equipo
-            </button>
+            
+            <div className="mb-6">
+              <AddTeamForm 
+                onCreateTeam={handleCreateTeam} 
+                isLoading={isCreatingTeam}
+              />
+            </div>
+
+            <div className="text-sm text-gray-500">
+              <p>¿Ya tienes un equipo?</p>
+              <button
+                onClick={() => router.push('/app/teams')}
+                className="text-blue-600 hover:text-blue-700 underline mt-1"
+              >
+                Ver invitaciones pendientes
+              </button>
+            </div>
           </div>
         </div>
       </div>

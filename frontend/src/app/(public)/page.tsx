@@ -235,6 +235,37 @@ const Hero = () => {
           )}
         </div>
       </section>
+            {/* Sección de Descarga de la App */}
+            <section className="bg-[#f5f5dc] text-[#2e3b1f] py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+          {/* Texto e instrucciones */}
+          <div className="flex flex-col items-start gap-4">
+            <h2 className="text-3xl font-bold">Descarga nuestra aplicación</h2>
+            <p className="text-base">
+              Escanea el código QR o haz clic en el siguiente botón para descargar la app.
+            </p>
+            <Link
+              href="https://expo.dev/accounts/sharlye/projects/CabanasApp/builds/928479f1-0438-4662-8f93-f1592db9f77d"
+              target="_blank"
+              className="mt-2 inline-block bg-[#2e3b1f] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#556B2F] transition-all duration-300"
+            >
+              Descargar App
+            </Link>
+          </div>
+
+          {/* Imagen del QR */}
+          <div className="w-40 h-40 relative">
+            <Image
+              src="/rq_app.png" // asegúrate de poner aquí la ruta correcta del QR en la carpeta /public
+              alt="Código QR para descarga"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+      </section>
+
     </>
   )
 }

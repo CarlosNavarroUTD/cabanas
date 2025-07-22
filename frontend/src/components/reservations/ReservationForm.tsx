@@ -34,7 +34,7 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
       
       resetForm();
       onClose();
-    } catch (err) {
+    } catch {
       // Error ya manejado en el hook
     }
   };

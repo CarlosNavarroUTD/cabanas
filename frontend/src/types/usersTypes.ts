@@ -9,6 +9,7 @@ export interface Person {
   apellido: string;
 }
 
+
 /**
  * Interfaz para los datos completos de un usuario
  */
@@ -34,10 +35,19 @@ export interface LoginCredentials {
 /**
  * Datos para registro de usuario
  */
+export interface PersonDataForm {
+  nombre: string;
+  apellido: string;
+}
+
 export interface RegisterData {
+  nombre_usuario?: string; 
+  tipo_usuario: string;
   email: string;
   password: string;
   phone?: string;
+  rol: string; // 'cliente' o 'arrendador'
+  persona?: PersonDataForm;
 }
 
 /**

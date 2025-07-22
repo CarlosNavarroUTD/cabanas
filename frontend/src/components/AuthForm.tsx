@@ -18,10 +18,15 @@ interface FormError {
 
 export default function AuthForm({ type }: AuthFormProps) {
   const [formData, setFormData] = useState({
+    nombre_usuario: '',
     email: '',
     password: '',
     phone: '',
+    nombre: '',
+    apellido: '',
+    rol: 'cliente', // valor por defecto
   });
+
   const [error, setError] = useState<FormError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -49,10 +54,19 @@ export default function AuthForm({ type }: AuthFormProps) {
 
       } else {
         await register({
+          nombre_usuario: formData.nombre_usuario || formData.email.split('@')[0], // crear aquí o pedir al usuario
           email: formData.email,
           password: formData.password,
           phone: formData.phone || undefined,
+          rol: formData.rol,
+          tipo_usuario: 'usuario', // siempre enviar este valor
+          persona: {
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+          },
         });
+        
+        
         router.push('/app');
       }
     } catch (err: unknown) {
@@ -202,21 +216,57 @@ export default function AuthForm({ type }: AuthFormProps) {
         </div>
 
         {type === 'register' && (
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              Teléfono (opcional)
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              id="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              disabled={isLoading || isGoogleLoading}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:opacity-50"
-            />
-          </div>
+          <>
+            {/* Campo Nombre */}
+            <div>
+              <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre</label>
+              <input
+                type="text"
+                name="nombre"
+                id="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:opacity-50"
+              />
+            </div>
+
+            {/* Campo Apellido */}
+            <div>
+              <label htmlFor="apellido" className="block text-sm font-medium text-gray-700">Apellido</label>
+              <input
+                type="text"
+                name="apellido"
+                id="apellido"
+                value={formData.apellido}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:opacity-50"
+              />
+            </div>
+
+            {/* Checkbox de Arrendador */}
+            <div className="flex items-center">
+              <input
+                id="rol"
+                name="rol"
+                type="checkbox"
+                checked={formData.rol === 'arrendador'}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    rol: e.target.checked ? 'arrendador' : 'cliente',
+                  }))
+                }
+                className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+              />
+              <label htmlFor="rol" className="ml-2 block text-sm text-gray-900">
+                Soy arrendador
+              </label>
+            </div>
+          </>
         )}
+
 
         <button
           type="submit"

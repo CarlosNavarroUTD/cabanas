@@ -5,8 +5,9 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, AlertCircle } from 'lucide-react';
 import CabanaAdminCard from '@/components/cabanas/CabanaAdminCard';
 import CabanaForm from '@/components/cabanas/CabanaForm';
-import { CabanaList, CabanaFilters, CabanaCreateUpdate } from '@/types/cabanasTypes';
+import { CabanaList, CabanaFilters } from '@/types/cabanasTypes';
 import { useCabanas } from '@/hooks/useCabanas';
+
 
 interface CabanaAdminPageProps {
   teamId: number;
@@ -17,7 +18,7 @@ export default function CabanaAdminPage({ teamId }: CabanaAdminPageProps) {
   const [showForm, setShowForm] = useState(false);
   const [selectedCabana, setSelectedCabana] = useState<CabanaList | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-
+  
   // Usar el hook useCabanas
   const { cabanas, isLoading, error, fetchCabanas, setCabanas, setError } = useCabanas();
 
@@ -78,7 +79,7 @@ export default function CabanaAdminPage({ teamId }: CabanaAdminPageProps) {
           aValue = aValue.toLowerCase();
           bValue = bValue.toLowerCase();
         }
-        
+
 
         if ((aValue ?? '') < (bValue ?? '')) return isDesc ? 1 : -1;
         if ((aValue ?? '') > (bValue ?? '')) return isDesc ? -1 : 1;
@@ -92,14 +93,6 @@ export default function CabanaAdminPage({ teamId }: CabanaAdminPageProps) {
   const handleCreateCabana = () => {
     setSelectedCabana(null);
     setShowForm(true);
-  };
-
-  const handleEditCabana = (cabanaId: number) => {
-    const cabana = cabanas.find(c => c.id === cabanaId);
-    if (cabana) {
-      setSelectedCabana(cabana);
-      setShowForm(true);
-    }
   };
 
   const handleToggleCabana = async (cabanaId: number, currentStatus: string) => {
@@ -129,47 +122,14 @@ export default function CabanaAdminPage({ teamId }: CabanaAdminPageProps) {
     }
   };
 
-  const handleFormSubmit = async (formData: CabanaCreateUpdate) => {
-    try {
-      const url = selectedCabana
-        ? `/api/cabanas/${selectedCabana.id}`
-        : '/api/cabanas';
-
-      const method = selectedCabana ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          team_id: teamId
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al guardar la cabaña');
-      }
-
-      const savedCabana = await response.json();
-
-      if (selectedCabana) {
-        // Actualizar cabaña existente
-        setCabanas(prev => prev.map(cabana =>
-          cabana.id === selectedCabana.id ? savedCabana : cabana
-        ));
-      } else {
-        // Agregar nueva cabaña
-        setCabanas(prev => [savedCabana, ...prev]);
-      }
-
-      setShowForm(false);
-      setSelectedCabana(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar la cabaña');
-    }
+  // CabanaAdminPage.tsx
+  const handleFormSubmit = () => {
+    // Solo manejar el resultado exitoso
+    setShowForm(false);
+    setSelectedCabana(null);
+    // El form ya ejecutó create/update, solo cerramos
   };
+  
 
   const handleFormCancel = () => {
     setShowForm(false);
@@ -253,7 +213,7 @@ export default function CabanaAdminPage({ teamId }: CabanaAdminPageProps) {
           <select
             value={filters.estado || ''}
             onChange={(e) => {
-              const value = e.target.value as CabanaFilters['estado'] | ''; 
+              const value = e.target.value as CabanaFilters['estado'] | '';
               handleFilterChange('estado', value === '' ? undefined : value);
             }}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -372,7 +332,7 @@ export default function CabanaAdminPage({ teamId }: CabanaAdminPageProps) {
               isFavorite={false} // o algún valor real si lo manejas
               onToggleFavorite={() => console.log('Toggle favorito', cabana.id)}
               onViewDetails={() => console.log('Ver detalles de', cabana.id)}
-              onEdit={handleEditCabana}
+              //onEdit={handleEditCabana}
               onToggle={handleToggleCabana}
             />
           ))}

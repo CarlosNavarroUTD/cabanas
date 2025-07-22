@@ -54,7 +54,7 @@ export const handleApiError = (error: AxiosError<ErrorResponseData>): ErrorRespo
   };
 };
 
-export function toSnakeCase(obj: Record<string, any>) {
+export function toSnakeCase<T extends object>(obj: T): Record<string, unknown> {
   return Object.fromEntries(
     Object.entries(obj).map(([key, value]) => [
       key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`),

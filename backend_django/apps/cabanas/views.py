@@ -106,6 +106,26 @@ class CabanaViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("No tienes permisos para editar esta cabaña.")
         
         serializer.save()
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # 🚨 AQUI usamos un serializer de salida
+        output_serializer = CabanaListSerializer(serializer.instance, context=self.get_serializer_context())
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # 🚨 También usamos serializer de salida
+        output_serializer = CabanaListSerializer(serializer.instance, context=self.get_serializer_context())
+        return Response(output_serializer.data)
+
 
     def perform_destroy(self, instance):
         """Verificar permisos antes de eliminar"""

@@ -49,28 +49,38 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         persona_data = validated_data.pop('persona', None)
-        rol = validated_data.get('rol', 'cliente')  # No pop, keep it in validated_data
+        rol = validated_data.get('rol', 'cliente')  # No pop, keep it
         password = validated_data.pop('password')
-        
-        # Create user - signal will automatically create Persona
-        usuario = Usuario.objects.create_user(password=password, **validated_data)
-        
-        # Update the Persona created by signal with provided data
+
+        nombre_usuario = validated_data.pop('nombre_usuario', None)
+        tipo_usuario = validated_data.pop('tipo_usuario', 'usuario')
+
+        if not nombre_usuario:
+            email = validated_data.get('email', '')
+            nombre_usuario = email.split('@')[0] if '@' in email else email
+
+        usuario = Usuario.objects.create_user(
+            password=password,
+            nombre_usuario=nombre_usuario,
+            tipo_usuario=tipo_usuario,
+            **validated_data
+        )
+
         if persona_data:
-            persona = usuario.persona  # Get the Persona created by signal
+            persona = usuario.persona
             persona.nombre = persona_data.get('nombre', '')
             persona.apellido = persona_data.get('apellido', '')
             persona.save()
-            
-            # Create Cliente or Arrendador based on rol
+
             if rol == 'cliente':
                 from .models import Cliente
                 Cliente.objects.create(persona=persona)
             elif rol == 'arrendador':
                 from .models import Arrendador
                 Arrendador.objects.create(persona=persona)
-        
+
         return usuario
+
 
     def update(self, instance, validated_data):
         persona_data = validated_data.pop('persona', None)

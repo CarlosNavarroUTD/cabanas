@@ -10,6 +10,9 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			'beige-light': '#F5F5DC',
+        	'olive-700': '#556B2F',
+        	'olive-900': '#2E3B1F',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

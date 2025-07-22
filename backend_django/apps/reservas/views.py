@@ -14,6 +14,8 @@ from apps.usuarios.permissions import PropietarioOAdministrador
 from apps.cabanas.models import Cabana
 import os
 from dotenv import load_dotenv
+from apps.teams.models import Team  # si no lo tienes ya importado
+
 load_dotenv()
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -101,6 +103,22 @@ class ReservaViewSet(viewsets.ModelViewSet):
             'fecha_inicio': fecha_inicio,
             'fecha_fin': fecha_fin
         })
+    
+
+    @action(detail=False, methods=['get'], url_path='por-equipo')
+    def reservas_por_equipo(self, request):
+        team_id = request.query_params.get('team_id')
+
+        if not team_id:
+            return Response({'error': 'Se requiere team_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        reservas = Reserva.objects.filter(
+            reservacabana__cabana__team_id=team_id
+        ).distinct()
+
+        serializer = self.get_serializer(reservas, many=True)
+        return Response(serializer.data)
+
 
 
 @csrf_exempt

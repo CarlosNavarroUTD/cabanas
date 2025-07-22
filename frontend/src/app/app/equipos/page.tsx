@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useTeams } from '@/hooks/useTeams';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { 
   Dialog,
   DialogContent,
@@ -19,8 +18,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Users, Mail, Plus, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Mail, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import AddTeamForm from '@/components/teams/AddTeamForm';
 
 export default function TeamsList() {
   const router = useRouter();
@@ -36,50 +36,18 @@ export default function TeamsList() {
     isLoading 
   } = useTeams();
   
-  const [teamName, setTeamName] = useState('');
-  const [teamDescription, setTeamDescription] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [invitePhone, setInvitePhone] = useState('');
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
   const [inviteMethod, setInviteMethod] = useState<'email' | 'phone'>('email');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchTeams();
     fetchInvitations();
   }, [fetchTeams, fetchInvitations]);
 
-  const handleCreateTeam = async () => {
-    try {
-      if (!teamName) {
-        toast({
-          title: "Error",
-          description: "El nombre del equipo es obligatorio",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      await createTeam({ name: teamName, description: teamDescription });
-      setTeamName('');
-      setTeamDescription('');
-      setIsCreateDialogOpen(false);
-      
-      toast({
-        title: "Éxito",
-        description: "Equipo creado correctamente",
-      });
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? 
-        error.message : 
-        (error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Error al crear el equipo";
-      
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
+  const handleCreateTeam = async (teamData: { name: string; description: string }) => {
+    await createTeam(teamData);
   };
 
   const handleInviteMember = async (teamId: number) => {
@@ -182,37 +150,7 @@ export default function TeamsList() {
     <div className="max-w-4xl mx-auto p-4 bg-white shadow-md rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Mis Equipos</h2>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Crear Equipo
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Crear nuevo equipo</DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col gap-4">
-              <Input
-                placeholder="Nombre del equipo"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-              />
-              <Textarea
-                placeholder="Descripción (opcional)"
-                value={teamDescription}
-                onChange={(e) => setTeamDescription(e.target.value)}
-              />
-              <Button 
-                onClick={handleCreateTeam}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Creando...' : 'Crear equipo'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AddTeamForm onCreateTeam={handleCreateTeam} isLoading={isLoading} />
       </div>
 
       {/* Sección de invitaciones pendientes */}
